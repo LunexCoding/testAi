@@ -16,7 +16,17 @@ namespace OrderApprovalSystem.Core.Helpers
         /// <summary>
         /// Builds a hierarchical tree structure from flat approval history records.
         /// Records with IsRework=false/null are parent nodes.
-        /// Records with IsRework=true are child nodes under the preceding parent.
+        /// Records with IsRework=true are child nodes under the most recent parent at the appropriate level.
+        /// Supports multi-level nesting: rework can be returned for further rework, creating deeper hierarchies.
+        /// 
+        /// Business Logic:
+        /// - Non-rework items start new root nodes and reset the nesting hierarchy
+        /// - Rework items nest under the most recent item (either root or previous rework)
+        /// - Sequential rework items nest progressively deeper (representing iterative rework cycles)
+        /// - Example: Approval → Rework1 → Rework2 → Rework3 (each rework is a child of the previous)
+        /// 
+        /// If your workflow requires rework items at the same level (siblings), additional logic
+        /// would be needed to determine when to pop the stack based on business rules.
         /// </summary>
         /// <param name="flatHistory">Flat collection of approval history records.
         /// Should be sorted by ReceiptDate ascending for correct parent-child relationships.</param>
@@ -29,7 +39,8 @@ namespace OrderApprovalSystem.Core.Helpers
             }
 
             var rootNodes = new ObservableCollection<ApprovalHistoryNode>();
-            ApprovalHistoryNode currentParent = null;
+            // Stack to track the current path in the tree for multi-level nesting
+            var parentStack = new Stack<ApprovalHistoryNode>();
 
             // Ensure records are sorted by ReceiptDate for correct hierarchical structure
             var sortedHistory = flatHistory.OrderBy(h => h.ReceiptDate).ToList();
@@ -40,22 +51,29 @@ namespace OrderApprovalSystem.Core.Helpers
                 if (record.IsRework == true)
                 {
                     // This is a rework item - add as child to current parent
-                    if (currentParent != null)
+                    if (parentStack.Count > 0)
                     {
+                        var currentParent = parentStack.Peek();
                         var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
                         {
                             Parent = currentParent
                         };
                         currentParent.Children.Add(childNode);
+
+                        // Invalidate completion date cache since we added a child
+                        currentParent.InvalidateCompletionDateCache();
+
+                        // Push this child onto the stack so subsequent rework items can nest under it
+                        parentStack.Push(childNode);
                     }
                     else
                     {
                         // No parent found - this is a data inconsistency
-                        // Add as root node to prevent data loss, but don't set as currentParent
-                        // to avoid subsequent rework items incorrectly becoming children
+                        // Add as root node to prevent data loss
                         var node = new ApprovalHistoryNode(record, 0);
                         rootNodes.Add(node);
-                        // Note: currentParent remains null, so next non-rework item will become the parent
+                        parentStack.Clear();
+                        parentStack.Push(node);
                     }
                 }
                 else
@@ -63,7 +81,10 @@ namespace OrderApprovalSystem.Core.Helpers
                     // This is a regular (non-rework) item - add as root node
                     var node = new ApprovalHistoryNode(record, 0);
                     rootNodes.Add(node);
-                    currentParent = node;
+
+                    // Reset the parent stack and set this as the current parent
+                    parentStack.Clear();
+                    parentStack.Push(node);
                 }
             }
 

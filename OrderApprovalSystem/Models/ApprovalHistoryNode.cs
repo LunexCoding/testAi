@@ -15,6 +15,8 @@ namespace OrderApprovalSystem.Models
     {
         private bool _isExpanded;
         private bool _isSelected;
+        private DateTime? _cachedEffectiveCompletionDate;
+        private bool _isCacheValid;
 
         /// <summary>
         /// The underlying approval history record
@@ -72,6 +74,71 @@ namespace OrderApprovalSystem.Models
         /// Indicates if this node has any children
         /// </summary>
         public bool HasChildren => Children != null && Children.Count > 0;
+
+        /// <summary>
+        /// Gets the effective completion date for this node.
+        /// For parent nodes with children, returns the maximum completion date among all child records.
+        /// For leaf nodes or nodes without children, returns the record's own completion date.
+        /// The value is cached for performance and recomputed when children are modified.
+        /// 
+        /// Thread-safety: This property is designed for single-threaded access (WPF UI thread).
+        /// If multi-threaded access is required, external synchronization must be provided.
+        /// </summary>
+        public DateTime? EffectiveCompletionDate
+        {
+            get
+            {
+                if (!_isCacheValid)
+                {
+                    if (HasChildren)
+                    {
+                        // Find the maximum completion date among all children recursively
+                        _cachedEffectiveCompletionDate = GetMaxCompletionDateRecursive(this);
+                    }
+                    else
+                    {
+                        _cachedEffectiveCompletionDate = Record?.CompletionDate;
+                    }
+                    _isCacheValid = true;
+                }
+                return _cachedEffectiveCompletionDate;
+            }
+        }
+
+        /// <summary>
+        /// Invalidates the cached effective completion date for this node and all its ancestors.
+        /// Should be called when children are added or modified.
+        /// </summary>
+        public void InvalidateCompletionDateCache()
+        {
+            _isCacheValid = false;
+            OnPropertyChanged(nameof(EffectiveCompletionDate));
+
+            // Propagate invalidation up the tree
+            Parent?.InvalidateCompletionDateCache();
+        }
+
+        /// <summary>
+        /// Recursively finds the maximum completion date among this node and all its descendants.
+        /// </summary>
+        private DateTime? GetMaxCompletionDateRecursive(ApprovalHistoryNode node)
+        {
+            DateTime? maxDate = node.Record?.CompletionDate;
+
+            if (node.Children != null)
+            {
+                foreach (var child in node.Children)
+                {
+                    var childMaxDate = GetMaxCompletionDateRecursive(child);
+                    if (childMaxDate.HasValue && (!maxDate.HasValue || childMaxDate.Value > maxDate.Value))
+                    {
+                        maxDate = childMaxDate;
+                    }
+                }
+            }
+
+            return maxDate;
+        }
 
         /// <summary>
         /// Constructor
