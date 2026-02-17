@@ -60,7 +60,10 @@ namespace OrderApprovalSystem.Core.Helpers
                         // This prevents creating duplicate child nodes when the same person appears multiple times
                         // in the approval flow. The current record acts as a "routing" record that navigates to
                         // the existing node rather than creating a new duplicate node.
-                        var existingChild = FindChildByRecipientName(currentParent, record.RecipientName);
+                        // Only attempt to find existing child if RecipientName is not null.
+                        var existingChild = record.RecipientName != null 
+                            ? FindChildByRecipientName(currentParent, record.RecipientName)
+                            : null;
                         
                         if (existingChild != null)
                         {
@@ -131,8 +134,7 @@ namespace OrderApprovalSystem.Core.Helpers
             // 2. If such duplicates exist (data inconsistency), reusing the first occurrence is reasonable
             // 3. This fix prevents creating additional duplicates going forward
             return parent.Children.FirstOrDefault(child => 
-                child.Record?.RecipientName != null && 
-                child.Record.RecipientName.Equals(recipientName, StringComparison.Ordinal));
+                child.Record?.RecipientName?.Equals(recipientName, StringComparison.Ordinal) == true);
         }
 
         /// <summary>
