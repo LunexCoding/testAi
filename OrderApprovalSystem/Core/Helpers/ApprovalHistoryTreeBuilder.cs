@@ -75,7 +75,10 @@ namespace OrderApprovalSystem.Core.Helpers
                 string recipientName = record.RecipientName ?? "";
                 
                 // Case 1: Same recipient as previous record (consecutive) - add as child continuation
-                if (recipientName == lastRecipientName && currentParent != null)
+                // Note: Empty strings are treated as different recipients to avoid grouping null values incorrectly
+                if (!string.IsNullOrEmpty(recipientName) && 
+                    recipientName == lastRecipientName && 
+                    currentParent != null)
                 {
                     var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
                     {
@@ -84,10 +87,12 @@ namespace OrderApprovalSystem.Core.Helpers
                     currentParent.Children.Add(childNode);
                     currentParent.InvalidateCompletionDateCache();
                     currentParent = childNode;
+                    lastRecipientName = recipientName; // Update to maintain consistency
                 }
                 // Case 2: This RecipientName already has a root-level node - create iteration structure
                 // This indicates a repeated approval cycle (повторное согласование)
-                else if (rootNodesByRecipient.ContainsKey(recipientName))
+                // Only applies to non-empty recipient names
+                else if (!string.IsNullOrEmpty(recipientName) && rootNodesByRecipient.ContainsKey(recipientName))
                 {
                     // This is a repeated approval - the same person is approving again
                     // Add as iteration under their existing root-level container node
@@ -110,7 +115,13 @@ namespace OrderApprovalSystem.Core.Helpers
                         // No current parent - create new root node
                         var rootNode = new ApprovalHistoryNode(record, 0);
                         rootNodes.Add(rootNode);
-                        rootNodesByRecipient[recipientName] = rootNode;
+                        
+                        // Only track non-empty recipient names to avoid grouping all nulls together
+                        if (!string.IsNullOrEmpty(recipientName))
+                        {
+                            rootNodesByRecipient[recipientName] = rootNode;
+                        }
+                        
                         currentParent = rootNode;
                         lastRecipientName = recipientName;
                     }
@@ -235,6 +246,7 @@ namespace OrderApprovalSystem.Core.Helpers
             }
         }
 
+#if DEBUG
         #region Test Helpers (Non-Production)
 
         /// <summary>
@@ -331,5 +343,6 @@ namespace OrderApprovalSystem.Core.Helpers
         }
 
         #endregion
+#endif
     }
 }
