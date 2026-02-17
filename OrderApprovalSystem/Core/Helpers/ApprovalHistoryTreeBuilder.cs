@@ -18,31 +18,27 @@ namespace OrderApprovalSystem.Core.Helpers
         /// 
         /// NEW Business Logic (Iteration-Based Grouping for Repeated Approvals):
         /// - "Повторное согласование" (repeated approval) occurs when the same RecipientName appears multiple times
-        ///   in the history, regardless of Sender or IsRework flag.
-        /// - When a RecipientName appears for the first time, it creates a root-level node that acts as the active
-        ///   approval record.
-        /// - When the SAME RecipientName appears again later (repeated approval), a container is created or used
-        ///   to group all iterations of that recipient, with each occurrence as a separate iteration node (sibling).
-        /// - Between iterations of the same recipient, approvals by OTHER recipients become children of the 
-        ///   current iteration node, creating proper parent-child relationships.
-        /// - This prevents consecutive duplicate nodes like "Сладков → Сладков → Сладков" and instead produces:
-        ///   Container: Сладков
-        ///     ├─ Iteration 1: Сладков
+        ///   in the history at the root level (not as nested children).
+        /// - When a RecipientName that already exists as a root-level node appears again at what would be root level,
+        ///   the first occurrence becomes a container, and all occurrences become iteration nodes under it.
+        /// - Between iterations, approvals by OTHER recipients become children of the current iteration node.
+        /// - This prevents consecutive root-level duplicate nodes like "Сладков, Сладков, Сладков" and instead produces:
+        ///   Container: Сладков (first record)
+        ///     ├─ Iteration 2: Сладков (second occurrence at root level)
         ///     │    └─ Child: Рагульский
-        ///     ├─ Iteration 2: Сладков
+        ///     ├─ Iteration 3: Сладков (third occurrence at root level)
         ///     │    └─ Child: Дингес
-        ///     └─ Iteration 3: Сладков
+        ///     └─ Iteration 4: Сладков (fourth occurrence at root level)
         ///          └─ Child: Дингес
         ///               └─ Child: Рагульский
         /// 
         /// Algorithm:
         /// 1. Sort all records by ReceiptDate (chronological order)
-        /// 2. First pass: Identify which recipients have repeated approvals
-        /// 3. Second pass: Build tree structure
-        ///    - For recipients with NO repeats: create simple root node
-        ///    - For recipients with repeats: create container + iteration nodes for each occurrence
-        ///    - For other recipients between iterations: add as children of current parent
-        /// 4. Maintain proper Level values and cache invalidation
+        /// 2. For each record:
+        ///    a. If same RecipientName as previous record: add as child (consecutive, same person continuing)
+        ///    b. If RecipientName matches a root-level node: create/update container with iteration nodes
+        ///    c. Otherwise: add as child of current parent, or as new root if no parent
+        /// 3. Maintain proper Level values and cache invalidation
         /// </summary>
         /// <param name="flatHistory">Flat collection of approval history records.
         /// Should be sorted by ReceiptDate ascending for correct parent-child relationships.</param>
@@ -64,37 +60,21 @@ namespace OrderApprovalSystem.Core.Helpers
                 return rootNodes;
             }
 
-            // First pass: identify which RecipientNames have multiple occurrences (repeated approvals)
-            var recipientOccurrences = new Dictionary<string, int>();
-            foreach (var record in sortedHistory)
-            {
-                string recipientName = record.RecipientName ?? "";
-                if (!recipientOccurrences.ContainsKey(recipientName))
-                {
-                    recipientOccurrences[recipientName] = 0;
-                }
-                recipientOccurrences[recipientName]++;
-            }
-
-            // Track container nodes by RecipientName for recipients with multiple occurrences
-            var containersByRecipient = new Dictionary<string, ApprovalHistoryNode>();
+            // Track root-level nodes by RecipientName to detect when same person appears at root level again
+            // This is used to implement iteration grouping for repeated root-level approvals
+            var rootNodesByRecipient = new Dictionary<string, ApprovalHistoryNode>();
             
             // Track the current parent node for adding children
             ApprovalHistoryNode currentParent = null;
             
-            // Track the last processed RecipientName to detect when we switch recipients
+            // Track the last processed RecipientName to detect consecutive same-person records
             string lastRecipientName = null;
-            
-            // Track which recipients we've seen to determine if this is first or repeated occurrence
-            var seenRecipients = new HashSet<string>();
 
             foreach (var record in sortedHistory)
             {
                 string recipientName = record.RecipientName ?? "";
-                bool hasMultipleOccurrences = recipientOccurrences[recipientName] > 1;
-                bool isFirstOccurrence = !seenRecipients.Contains(recipientName);
                 
-                // Same recipient as previous record - add as child (continuation of flow)
+                // Case 1: Same recipient as previous record (consecutive) - add as child continuation
                 if (recipientName == lastRecipientName && currentParent != null)
                 {
                     var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
@@ -105,48 +85,34 @@ namespace OrderApprovalSystem.Core.Helpers
                     currentParent.InvalidateCompletionDateCache();
                     currentParent = childNode;
                 }
-                // Recipient with multiple occurrences
-                else if (hasMultipleOccurrences)
+                // Case 2: This RecipientName already has a root-level node - create iteration structure
+                // This indicates a repeated approval cycle (повторное согласование)
+                else if (rootNodesByRecipient.ContainsKey(recipientName))
                 {
-                    if (isFirstOccurrence)
+                    // This is a repeated approval - the same person is approving again
+                    // Add as iteration under their existing root-level container node
+                    var containerNode = rootNodesByRecipient[recipientName];
+                    var iterationNode = new ApprovalHistoryNode(record, containerNode.Level + 1)
                     {
-                        // First occurrence of a recipient that will have repeats
-                        // Create container at root level using this record
-                        var containerNode = new ApprovalHistoryNode(record, 0);
-                        rootNodes.Add(containerNode);
-                        containersByRecipient[recipientName] = containerNode;
-                        seenRecipients.Add(recipientName);
-                        
-                        // Container serves as current parent for subsequent records
-                        currentParent = containerNode;
-                        lastRecipientName = recipientName;
-                    }
-                    else
-                    {
-                        // Repeated occurrence - create iteration node under container
-                        var containerNode = containersByRecipient[recipientName];
-                        var iterationNode = new ApprovalHistoryNode(record, containerNode.Level + 1)
-                        {
-                            Parent = containerNode
-                        };
-                        containerNode.Children.Add(iterationNode);
-                        containerNode.InvalidateCompletionDateCache();
-                        
-                        currentParent = iterationNode;
-                        lastRecipientName = recipientName;
-                    }
+                        Parent = containerNode
+                    };
+                    containerNode.Children.Add(iterationNode);
+                    containerNode.InvalidateCompletionDateCache();
+                    
+                    currentParent = iterationNode;
+                    lastRecipientName = recipientName;
                 }
-                // Recipient with single occurrence - simple root node
+                // Case 3: New recipient - follow normal flow
                 else
                 {
                     if (currentParent == null)
                     {
-                        // No current parent - create root node
+                        // No current parent - create new root node
                         var rootNode = new ApprovalHistoryNode(record, 0);
                         rootNodes.Add(rootNode);
+                        rootNodesByRecipient[recipientName] = rootNode;
                         currentParent = rootNode;
                         lastRecipientName = recipientName;
-                        seenRecipients.Add(recipientName);
                     }
                     else
                     {
@@ -159,7 +125,6 @@ namespace OrderApprovalSystem.Core.Helpers
                         currentParent.InvalidateCompletionDateCache();
                         currentParent = childNode;
                         lastRecipientName = recipientName;
-                        seenRecipients.Add(recipientName);
                     }
                 }
             }
