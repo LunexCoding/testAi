@@ -22,6 +22,7 @@ namespace OrderApprovalSystem.Core.Helpers
         /// Business Logic:
         /// - Non-rework items start new root nodes and reset the nesting hierarchy
         /// - Rework items nest under the most recent item (either root or previous rework)
+        /// - Consecutive nodes with the same RecipientName under the same parent are merged to avoid duplication
         /// - Sequential rework items nest progressively deeper (representing iterative rework cycles)
         /// - Example: Approval → Rework1 → Rework2 → Rework3 (each rework is a child of the previous)
         /// 
@@ -54,17 +55,30 @@ namespace OrderApprovalSystem.Core.Helpers
                     if (parentStack.Count > 0)
                     {
                         var currentParent = parentStack.Peek();
-                        var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
+                        
+                        // Check if a child node with the same RecipientName already exists
+                        var existingChild = FindChildByRecipientName(currentParent, record.RecipientName);
+                        
+                        if (existingChild != null)
                         {
-                            Parent = currentParent
-                        };
-                        currentParent.Children.Add(childNode);
+                            // Reuse the existing node instead of creating a duplicate
+                            parentStack.Push(existingChild);
+                        }
+                        else
+                        {
+                            // Create a new child node
+                            var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
+                            {
+                                Parent = currentParent
+                            };
+                            currentParent.Children.Add(childNode);
 
-                        // Invalidate completion date cache since we added a child
-                        currentParent.InvalidateCompletionDateCache();
+                            // Invalidate completion date cache since we added a child
+                            currentParent.InvalidateCompletionDateCache();
 
-                        // Push this child onto the stack so subsequent rework items can nest under it
-                        parentStack.Push(childNode);
+                            // Push this child onto the stack so subsequent rework items can nest under it
+                            parentStack.Push(childNode);
+                        }
                     }
                     else
                     {
@@ -89,6 +103,25 @@ namespace OrderApprovalSystem.Core.Helpers
             }
 
             return rootNodes;
+        }
+
+        /// <summary>
+        /// Finds an existing child node under the given parent that has the same RecipientName.
+        /// Used to merge duplicate consecutive nodes for the same person.
+        /// </summary>
+        /// <param name="parent">Parent node to search within</param>
+        /// <param name="recipientName">RecipientName to match</param>
+        /// <returns>Existing child node with matching RecipientName, or null if not found</returns>
+        private static ApprovalHistoryNode FindChildByRecipientName(ApprovalHistoryNode parent, string recipientName)
+        {
+            if (parent?.Children == null || string.IsNullOrEmpty(recipientName))
+            {
+                return null;
+            }
+
+            return parent.Children.FirstOrDefault(child => 
+                child.Record?.RecipientName != null && 
+                child.Record.RecipientName.Equals(recipientName, StringComparison.Ordinal));
         }
 
         /// <summary>
