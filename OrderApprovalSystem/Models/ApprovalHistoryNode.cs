@@ -74,6 +74,35 @@ namespace OrderApprovalSystem.Models
         public bool HasChildren => Children != null && Children.Count > 0;
 
         /// <summary>
+        /// Gets the maximum completion date across this node and all its descendants.
+        /// Returns null if no completion dates are set in the entire subtree.
+        /// </summary>
+        public DateTime? MaxCompletionDate
+        {
+            get
+            {
+                DateTime? maxDate = Record?.CompletionDate;
+
+                if (Children != null && Children.Count > 0)
+                {
+                    foreach (var child in Children)
+                    {
+                        var childMaxDate = child.MaxCompletionDate;
+                        if (childMaxDate.HasValue)
+                        {
+                            if (!maxDate.HasValue || childMaxDate.Value > maxDate.Value)
+                            {
+                                maxDate = childMaxDate;
+                            }
+                        }
+                    }
+                }
+
+                return maxDate;
+            }
+        }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="record">The approval history record to wrap</param>

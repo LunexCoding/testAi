@@ -127,107 +127,81 @@
                                   ItemsSource="{Binding Children}">
             <Border BorderBrush="{DynamicResource GreenAccentBrush}" 
                     BorderThickness="0,0,0,1" 
-                    Padding="5">
+                    Padding="8,5">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="110"/>
-                        <!-- Дата поступления -->
-                        <ColumnDefinition Width="110"/>
-                        <!-- Дата завершения -->
-                        <ColumnDefinition Width="100"/>
+                        <!-- Column widths increased for better readability and spacing -->
+                        <ColumnDefinition Width="200"/>
+                        <!-- Исполнитель (ФИО) -->
+                        <ColumnDefinition Width="150"/>
                         <!-- Срок -->
-                        <ColumnDefinition Width="120"/>
-                        <!-- Роль получателя -->
-                        <ColumnDefinition Width="120"/>
-                        <!-- Получатель -->
-                        <ColumnDefinition Width="120"/>
-                        <!-- Роль отправителя -->
-                        <ColumnDefinition Width="120"/>
-                        <!-- Отправитель -->
-                        <ColumnDefinition Width="80"/>
-                        <!-- Доработка -->
-                        <ColumnDefinition Width="100"/>
-                        <!-- Статус -->
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="150"/>
+                        <!-- Состояние -->
+                        <ColumnDefinition Width="150"/>
                         <!-- Результат -->
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="180"/>
+                        <!-- Дата поступления -->
+                        <ColumnDefinition Width="180"/>
+                        <!-- Дата завершения -->
+                        <ColumnDefinition Width="*" MinWidth="200"/>
                         <!-- Комментарий -->
                     </Grid.ColumnDefinitions>
 
-                    <!-- Дата поступления with indentation for child nodes -->
+                    <!-- Исполнитель (ФИО) with indentation for child nodes -->
                     <TextBlock Grid.Column="0" 
-                               Text="{Binding Record.ReceiptDate, StringFormat='dd.MM.yyyy HH:mm:ss'}"
-                               VerticalAlignment="Center"
-                               Margin="{Binding Level, Converter={StaticResource LevelToIndentConverter}}"/>
-
-                    <!-- Дата завершения -->
-                    <TextBlock Grid.Column="1" 
-                               Text="{Binding Record.CompletionDate, StringFormat='dd.MM.yyyy HH:mm:ss'}"
-                               VerticalAlignment="Center"
-                               Margin="2,0"/>
-
-                    <!-- Срок -->
-                    <TextBlock Grid.Column="2" 
-                               Text="{Binding Record.Term, StringFormat='dd.MM.yyyy'}"
-                               VerticalAlignment="Center"
-                               Margin="2,0"/>
-
-                    <!-- Роль получателя -->
-                    <TextBlock Grid.Column="3" 
-                               Text="{Binding Record.RecipientRole}"
-                               VerticalAlignment="Center"
-                               TextWrapping="Wrap"
-                               Margin="2,0"/>
-
-                    <!-- Получатель -->
-                    <TextBlock Grid.Column="4" 
                                Text="{Binding Record.RecipientName}"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap"
-                               Margin="2,0"/>
+                               Margin="{Binding Level, Converter={StaticResource LevelToIndentConverter}}"
+                               Padding="0,2,15,2"/>
 
-                    <!-- Роль отправителя -->
-                    <TextBlock Grid.Column="5" 
-                               Text="{Binding Record.SenderRole}"
+                    <!-- Срок -->
+                    <TextBlock Grid.Column="1" 
+                               Text="{Binding Record.Term, StringFormat='dd.MM.yyyy'}"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap"
-                               Margin="2,0"/>
+                               Margin="0,0,0,0"
+                               Padding="0,2,15,2"/>
 
-                    <!-- Отправитель -->
-                    <TextBlock Grid.Column="6" 
-                               Text="{Binding Record.SenderName}"
-                               VerticalAlignment="Center"
-                               TextWrapping="Wrap"
-                               Margin="2,0"/>
-
-                    <!-- Доработка -->
-                    <TextBlock Grid.Column="7" 
-                               Text="✓" 
-                               Foreground="Green" 
-                               FontSize="16" 
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Visibility="{Binding Record.IsRework, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-                    <!-- Статус -->
-                    <TextBlock Grid.Column="8" 
+                    <!-- Состояние -->
+                    <TextBlock Grid.Column="2" 
                                Text="{Binding Record.Status}"
                                VerticalAlignment="Center"
-                               Margin="2,0"/>
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,0"
+                               Padding="0,2,15,2"/>
 
                     <!-- Результат -->
-                    <TextBlock Grid.Column="9" 
+                    <TextBlock Grid.Column="3" 
                                Text="{Binding Record.Result}"
                                VerticalAlignment="Center"
-                               Margin="2,0"/>
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,0"
+                               Padding="0,2,15,2"/>
+
+                    <!-- Дата поступления -->
+                    <TextBlock Grid.Column="4" 
+                               Text="{Binding Record.ReceiptDate, StringFormat='dd.MM.yyyy HH:mm'}"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,0"
+                               Padding="0,2,15,2"/>
+
+                    <!-- Дата завершения (Max across subtree) -->
+                    <TextBlock Grid.Column="5" 
+                               Text="{Binding MaxCompletionDate, StringFormat='dd.MM.yyyy HH:mm'}"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,0"
+                               Padding="0,2,15,2"/>
 
                     <!-- Комментарий -->
-                    <TextBlock Grid.Column="10" 
+                    <TextBlock Grid.Column="6" 
                                Text="{Binding Record.Comment}"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap"
-                               Margin="2,0"/>
+                               Margin="0,0,0,0"
+                               Padding="0,2,15,2"/>
                 </Grid>
             </Border>
         </HierarchicalDataTemplate>
@@ -244,32 +218,25 @@
                 Background="{DynamicResource AccentBrush}" 
                 BorderBrush="{DynamicResource GreenAccentBrush}"
                 BorderThickness="0,0,0,2">
-            <Grid Margin="5">
+            <Grid Margin="8,5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="110"/>
-                    <ColumnDefinition Width="110"/>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="80"/>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="*"/>
+                    <!-- Column widths must match the data template -->
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Дата поступления" FontWeight="Bold" Foreground="White" Margin="18,0,2,0"/>
-                <TextBlock Grid.Column="1" Text="Дата завершения" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="2" Text="Срок" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="3" Text="Роль получателя" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="4" Text="Получатель" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="5" Text="Роль отправителя" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="6" Text="Отправитель" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="7" Text="Доработка" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" Margin="2,0"/>
-                <TextBlock Grid.Column="8" Text="Статус" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="9" Text="Результат" FontWeight="Bold" Foreground="White" Margin="2,0"/>
-                <TextBlock Grid.Column="10" Text="Комментарий" FontWeight="Bold" Foreground="White" Margin="2,0"/>
+                <TextBlock Grid.Column="0" Text="Исполнитель (ФИО)" FontWeight="Bold" Foreground="White" Margin="18,0,15,0" TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="1" Text="Срок" FontWeight="Bold" Foreground="White" Margin="0,0,15,0" TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="2" Text="Состояние" FontWeight="Bold" Foreground="White" Margin="0,0,15,0" TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="3" Text="Результат" FontWeight="Bold" Foreground="White" Margin="0,0,15,0" TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="4" Text="Дата поступления" FontWeight="Bold" Foreground="White" Margin="0,0,15,0" TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="5" Text="Дата завершения" FontWeight="Bold" Foreground="White" Margin="0,0,15,0" TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="6" Text="Комментарий" FontWeight="Bold" Foreground="White" Margin="0,0,15,0" TextWrapping="Wrap"/>
             </Grid>
         </Border>
 

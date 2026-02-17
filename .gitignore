@@ -29,3 +29,7 @@ Backup*/
 UpgradeLog*.XML
 
 BuildDate.cs
+
+# Temporary editor files
+*.TMP
+*~*
