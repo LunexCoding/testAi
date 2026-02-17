@@ -74,6 +74,46 @@ namespace OrderApprovalSystem.Models
         public bool HasChildren => Children != null && Children.Count > 0;
 
         /// <summary>
+        /// Gets the effective completion date for this node.
+        /// For parent nodes with children, returns the maximum completion date among all child records.
+        /// For leaf nodes or nodes without children, returns the record's own completion date.
+        /// </summary>
+        public DateTime? EffectiveCompletionDate
+        {
+            get
+            {
+                if (HasChildren)
+                {
+                    // Find the maximum completion date among all children recursively
+                    return GetMaxCompletionDateRecursive(this);
+                }
+                return Record?.CompletionDate;
+            }
+        }
+
+        /// <summary>
+        /// Recursively finds the maximum completion date among this node and all its descendants.
+        /// </summary>
+        private DateTime? GetMaxCompletionDateRecursive(ApprovalHistoryNode node)
+        {
+            DateTime? maxDate = node.Record?.CompletionDate;
+
+            if (node.Children != null)
+            {
+                foreach (var child in node.Children)
+                {
+                    var childMaxDate = GetMaxCompletionDateRecursive(child);
+                    if (childMaxDate.HasValue && (!maxDate.HasValue || childMaxDate.Value > maxDate.Value))
+                    {
+                        maxDate = childMaxDate;
+                    }
+                }
+            }
+
+            return maxDate;
+        }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="record">The approval history record to wrap</param>
