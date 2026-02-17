@@ -75,7 +75,7 @@ namespace OrderApprovalSystem.Core.Helpers
                 string recipientName = record.RecipientName ?? "";
                 
                 // Case 1: Same recipient as previous record (consecutive) - add as child continuation
-                // Note: Empty strings are treated as different recipients to avoid grouping null values incorrectly
+                // Null/empty recipients are excluded from consecutive checking to prevent incorrect grouping
                 if (!string.IsNullOrEmpty(recipientName) && 
                     recipientName == lastRecipientName && 
                     currentParent != null)
@@ -87,7 +87,7 @@ namespace OrderApprovalSystem.Core.Helpers
                     currentParent.Children.Add(childNode);
                     currentParent.InvalidateCompletionDateCache();
                     currentParent = childNode;
-                    lastRecipientName = recipientName; // Update to maintain consistency
+                    lastRecipientName = recipientName; // Maintain tracking for next iteration's Case 1 check
                 }
                 // Case 2: This RecipientName already has a root-level node - create iteration structure
                 // This indicates a repeated approval cycle (повторное согласование)
