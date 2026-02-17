@@ -15,6 +15,8 @@ namespace OrderApprovalSystem.Models
     {
         private bool _isExpanded;
         private bool _isSelected;
+        private DateTime? _maxCompletionDate;
+        private bool _maxCompletionDateComputed;
 
         /// <summary>
         /// The underlying approval history record
@@ -72,6 +74,65 @@ namespace OrderApprovalSystem.Models
         /// Indicates if this node has any children
         /// </summary>
         public bool HasChildren => Children != null && Children.Count > 0;
+
+        /// <summary>
+        /// Gets the maximum completion date across this node and all its descendants.
+        /// Returns null if no completion dates are set in the entire subtree.
+        /// Value is cached for performance and recomputed when needed.
+        /// </summary>
+        public DateTime? MaxCompletionDate
+        {
+            get
+            {
+                if (!_maxCompletionDateComputed)
+                {
+                    _maxCompletionDate = ComputeMaxCompletionDate();
+                    _maxCompletionDateComputed = true;
+                }
+                return _maxCompletionDate;
+            }
+        }
+
+        /// <summary>
+        /// Recursively computes the maximum completion date across this node and all its descendants.
+        /// </summary>
+        private DateTime? ComputeMaxCompletionDate()
+        {
+            DateTime? maxDate = Record?.CompletionDate;
+
+            if (Children != null && Children.Count > 0)
+            {
+                foreach (var child in Children)
+                {
+                    var childMaxDate = child.MaxCompletionDate;
+                    if (childMaxDate.HasValue)
+                    {
+                        if (!maxDate.HasValue || childMaxDate.Value > maxDate.Value)
+                        {
+                            maxDate = childMaxDate;
+                        }
+                    }
+                }
+            }
+
+            return maxDate;
+        }
+
+        /// <summary>
+        /// Invalidates the cached MaxCompletionDate value, forcing it to be recomputed on next access.
+        /// Call this when the completion date or tree structure changes.
+        /// </summary>
+        public void InvalidateMaxCompletionDateCache()
+        {
+            _maxCompletionDateComputed = false;
+            _maxCompletionDate = null;
+            
+            // Notify UI that the property has changed
+            OnPropertyChanged(nameof(MaxCompletionDate));
+            
+            // Recursively invalidate parent nodes up the tree
+            Parent?.InvalidateMaxCompletionDateCache();
+        }
 
         /// <summary>
         /// Constructor
