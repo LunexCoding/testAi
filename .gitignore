@@ -29,3 +29,8 @@ Backup*/
 UpgradeLog*.XML
 
 BuildDate.cs
+
+# NuGet
+.nuget/
+*.nuget.props
+*.nuget.targets
