@@ -1,0 +1,1148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="FOXModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="calend">
+          <Key>
+            <PropertyRef Name="mday" />
+          </Key>
+          <Property Name="mday" Type="date" Nullable="false" />
+          <Property Name="v" Type="bit" />
+        </EntityType>
+        <EntityType Name="LIST_FR">
+          <Key>
+            <PropertyRef Name="WHAT" />
+          </Key>
+          <Property Name="WHAT" Type="numeric" Precision="14" Scale="2" Nullable="false" />
+          <Property Name="NM" Type="nchar" MaxLength="40" />
+        </EntityType>
+        <EntityType Name="listdse">
+          <Key>
+            <PropertyRef Name="DRAFT" />
+          </Key>
+          <Property Name="DRAFT" Type="numeric" Precision="9" Scale="0" Nullable="false" />
+          <Property Name="DSE" Type="char" MaxLength="40" />
+        </EntityType>
+        <EntityType Name="oborud">
+          <Key>
+            <PropertyRef Name="rab_m" />
+          </Key>
+          <Property Name="code" Type="nchar" MaxLength="10" />
+          <Property Name="oborud" Type="nchar" MaxLength="30" />
+          <Property Name="cex" Type="nchar" MaxLength="3" />
+          <Property Name="rab_m" Type="numeric" Precision="3" Scale="0" Nullable="false" />
+          <Property Name="nom_u" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="kol_ed" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="cex1" Type="nchar" MaxLength="3" />
+          <Property Name="kol_ob" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="res_ob" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="res_pr" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="res_s" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="gr_ob" Type="numeric" Precision="1" Scale="0" />
+          <Property Name="res_pipl" Type="numeric" Precision="4" Scale="1" />
+        </EntityType>
+        <EntityType Name="olistdse">
+          <Key>
+            <PropertyRef Name="draft" />
+          </Key>
+          <Property Name="draft" Type="numeric" Precision="13" Scale="2" Nullable="false" />
+          <Property Name="dse" Type="char" MaxLength="40" />
+        </EntityType>
+        <EntityType Name="OrderApproval">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="zayvkaID" Type="int" />
+          <Property Name="ManufacturingTerm" Type="date" />
+          <Property Name="OpenAt" Type="date" />
+          <Property Name="Draft" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="DraftName" Type="varchar(max)" />
+          <Property Name="Technologist" Type="varchar" MaxLength="100" />
+          <Property Name="CoreDraft" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="CoreDraftName" Type="varchar(max)" />
+          <Property Name="Workshop" Type="char" MaxLength="3" />
+          <Property Name="Warehouse" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="Workplace" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="Operation" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="EquipmentNameFromTechnologist" Type="varchar(max)" />
+          <Property Name="Analog" Type="char" MaxLength="20" />
+          <Property Name="EquipmentQuantityForOperation" Type="numeric" Precision="4" Scale="1" />
+          <Property Name="IsByMemo" Type="bit" Nullable="false" />
+          <Property Name="MemoNumber" Type="varchar" MaxLength="255" />
+          <Property Name="MemoAuthor" Type="varchar" MaxLength="255" />
+          <Property Name="Order" Type="int" />
+          <Property Name="Number" Type="int" />
+          <Property Name="OrderName" Type="varchar" MaxLength="250" />
+          <Property Name="CoreOrder" Type="int" />
+          <Property Name="CoreNumber" Type="int" />
+          <Property Name="OpenAtByMemo" Type="date" />
+          <Property Name="NomenclatureGroupID" Type="int" />
+          <Property Name="EquipmentTypeID" Type="int" />
+          <Property Name="DraftByMemo" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="DraftNameByMemo" Type="varchar(max)" />
+          <Property Name="Balance" Type="int" />
+          <Property Name="WorkshopByMemo" Type="char" MaxLength="3" />
+          <Property Name="EquipmentRequiredQuantityByMemo" Type="numeric" Precision="6" Scale="1" />
+        </EntityType>
+        <EntityType Name="OrderApprovalDrafts">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OrderApprovalID" Type="int" Nullable="false" />
+          <Property Name="EquipmentDraft" Type="numeric" Precision="13" Scale="2" Nullable="false" />
+          <Property Name="EquipmentName" Type="varchar(max)" />
+          <Property Name="Cooperation" Type="bit" Nullable="false" />
+          <Property Name="IsDeletedFromOrder" Type="bit" Nullable="false" />
+          <Property Name="EquimentRequiredQuantity" Type="numeric" Precision="6" Scale="1" />
+          <Property Name="CommentForDesign" Type="varchar(max)" />
+          <Property Name="CommentForManufacturing" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="OrderApprovalHistory">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OrderApprovalID" Type="int" Nullable="false" />
+          <Property Name="ReceiptDate" Type="datetime2" Precision="0" Nullable="false" />
+          <Property Name="CompletionDate" Type="datetime2" Precision="0" />
+          <Property Name="Term" Type="date" Nullable="false" />
+          <Property Name="RecipientRole" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="RecipientName" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="SenderRole" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="SenderName" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="Status" Type="varchar" MaxLength="9" />
+          <Property Name="Result" Type="varchar" MaxLength="20" />
+          <Property Name="IsRework" Type="bit" />
+          <Property Name="Comment" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="OrderApprovalNomenclatureGroups">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="GroupName" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="TypeID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OrderApprovalTypes">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Group" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="NewDevelopmentTerm" Type="int" Nullable="false" />
+          <Property Name="DoubleTerm" Type="int" Nullable="false" />
+          <Property Name="RepairModificationTerm" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="os_pro">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="zak_1" Type="char" MaxLength="7" />
+          <Property Name="to_2" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="niz_3" Type="char" MaxLength="25" />
+          <Property Name="draft_4" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="n_dra_5" Type="char" MaxLength="14" />
+          <Property Name="osn_6" Type="char" MaxLength="14" />
+          <Property Name="osna_7" Type="char" MaxLength="20" />
+          <Property Name="osh_8" Type="numeric" Precision="1" Scale="0" />
+          <Property Name="s_pr_9" Type="date" />
+          <Property Name="s_iz_10" Type="date" />
+          <Property Name="s_vn_11" Type="date" />
+          <Property Name="d_pr_12" Type="date" />
+          <Property Name="d_iz_13" Type="date" />
+          <Property Name="d_vn_14" Type="date" />
+          <Property Name="z_z_15" Type="char" MaxLength="5" />
+          <Property Name="z_iz_16" Type="char" MaxLength="3" />
+          <Property Name="z_p_17" Type="char" MaxLength="3" />
+          <Property Name="mesto_18" Type="char" MaxLength="12" />
+          <Property Name="di1_19" Type="date" />
+          <Property Name="k1_20" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="di2_21" Type="date" />
+          <Property Name="k2_22" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="d_otk_23" Type="date" />
+          <Property Name="tr_p_24" Type="numeric" Precision="7" Scale="2" />
+          <Property Name="mat_25" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="sved_26" Type="char" MaxLength="50" />
+          <Property Name="ko1_27" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="num_28" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="kod_29" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="zakf_30" Type="char" MaxLength="8" />
+          <Property Name="schet_31" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="k_pl_32" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="k_f_33" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="tr_f_34" Type="numeric" Precision="7" Scale="2" />
+          <Property Name="uch_i_35" Type="char" MaxLength="1" />
+          <Property Name="klad_36" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="osn_37" Type="numeric" Precision="1" Scale="0" />
+          <Property Name="xar_38" Type="char" MaxLength="2" />
+          <Property Name="oper" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="rab_m" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="tproc" Type="char" MaxLength="6" />
+          <Property Name="graf" Type="char" MaxLength="15" />
+          <Property Name="fio" Type="char" MaxLength="15" />
+          <Property Name="d_zap" Type="date" />
+          <Property Name="d_spp" Type="date" />
+          <Property Name="pr" Type="char" MaxLength="2" />
+          <Property Name="znum1" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="dat_cz" Type="date" />
+          <Property Name="zak_nar" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="nom_nar" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="dat_cz1" Type="date" />
+          <Property Name="ispolk" Type="char" MaxLength="10" />
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+        </EntityType>
+        <EntityType Name="prod">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="zakaz" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="nom" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="dr" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="kol" Type="numeric" Precision="6" Scale="0" />
+          <Property Name="do" Type="date" />
+          <Property Name="z_o" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="n_o" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="z_p" Type="char" MaxLength="8" />
+          <Property Name="d_i" Type="date" />
+          <Property Name="z_t" Type="char" MaxLength="5" />
+          <Property Name="nm" Type="char" MaxLength="45" />
+          <Property Name="n_p" Type="char" MaxLength="3" />
+          <Property Name="prim" Type="char" MaxLength="100" />
+          <Property Name="acr" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="cex" Type="char" MaxLength="3" />
+          <Property Name="nmm" Type="char" MaxLength="45" />
+          <Property Name="bal" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="zak_1" Type="nchar" MaxLength="7" />
+        </EntityType>
+        <EntityType Name="s_oper">
+          <Key>
+            <PropertyRef Name="code" />
+          </Key>
+          <Property Name="code" Type="numeric" Precision="4" Scale="0" Nullable="false" />
+          <Property Name="oper" Type="nchar" MaxLength="44" />
+          <Property Name="cex" Type="nchar" MaxLength="3" />
+          <Property Name="kontr" Type="numeric" Precision="1" Scale="0" />
+        </EntityType>
+        <EntityType Name="zayvka">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="dza" Type="date" />
+          <Property Name="draft" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="rab_m" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="kpodrt" Type="char" MaxLength="3" />
+          <Property Name="kodop" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="ksi" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="klo" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="klg" Type="numeric" Precision="6" Scale="0" />
+          <Property Name="naimosn" Type="char" MaxLength="50" />
+          <Property Name="koltex" Type="numeric" Precision="4" Scale="1" />
+          <Property Name="imyt" Type="char" MaxLength="10" />
+          <Property Name="dizmt" Type="date" />
+          <Property Name="tzak" Type="numeric" Precision="9" Scale="0" />
+          <Property Name="tf" Type="char" MaxLength="1" />
+          <Property Name="ru" Type="char" MaxLength="1" />
+          <Property Name="prim_an" Type="char" MaxLength="20" />
+          <Property Name="prim" Type="char" MaxLength="50" />
+          <Property Name="graf" Type="char" MaxLength="14" />
+          <Property Name="draftiz" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="ndraftiz" Type="char" MaxLength="30" />
+          <Property Name="cexpol" Type="char" MaxLength="3" />
+          <Property Name="kladov" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="dsog" Type="date" />
+          <Property Name="sog" Type="char" MaxLength="1" />
+          <Property Name="nsog" Type="char" MaxLength="1" />
+          <Property Name="dsog2" Type="date" />
+          <Property Name="sog2" Type="char" MaxLength="1" />
+          <Property Name="nsog2" Type="char" MaxLength="1" />
+          <Property Name="draftosn" Type="numeric" Precision="13" Scale="2" />
+          <Property Name="naosnsl" Type="char" MaxLength="50" />
+          <Property Name="kl" Type="numeric" Precision="1" Scale="0" />
+          <Property Name="trud" Type="numeric" Precision="7" Scale="2" />
+          <Property Name="imyk" Type="char" MaxLength="10" />
+          <Property Name="dizmk" Type="date" />
+          <Property Name="p" Type="char" MaxLength="1" />
+          <Property Name="zakf" Type="char" MaxLength="8" />
+          <Property Name="kolzak" Type="numeric" Precision="6" Scale="1" />
+          <Property Name="izv" Type="char" MaxLength="15" />
+          <Property Name="kod_29" Type="numeric" Precision="3" Scale="0" />
+          <Property Name="ko1_27" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="kpod" Type="char" MaxLength="5" />
+          <Property Name="znum1" Type="numeric" Precision="5" Scale="0" />
+          <Property Name="dataosn" Type="date" />
+          <Property Name="chek" Type="bit" />
+          <Property Name="imyts" Type="char" MaxLength="10" />
+          <Property Name="ispolk" Type="char" MaxLength="10" />
+          <Property Name="trudpr_p" Type="numeric" Precision="7" Scale="2" />
+          <Property Name="trudpr_f" Type="numeric" Precision="7" Scale="2" />
+          <Property Name="dop" Type="varchar(max)" />
+          <Property Name="zak_1" Type="char" MaxLength="7" />
+          <Property Name="dt_ko" Type="date" />
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="predtz" Type="numeric" Precision="10" Scale="0" />
+          <Property Name="is_act" Type="bit" />
+          <Property Name="zakaz" Type="smallint" Nullable="false" />
+          <Property Name="nom" Type="smallint" Nullable="false" />
+          <Property Name="grafik_id" Type="int" />
+          <Property Name="dzap" Type="date" />
+          <Property Name="namedraft" Type="varchar" MaxLength="50" />
+          <Property Name="os_pro_id" Type="int" />
+          <Property Name="comments" Type="varchar(max)" />
+        </EntityType>
+        <Association Name="FK_OrderApproval_EquipmentTypeID">
+          <End Role="OrderApprovalTypes" Type="Self.OrderApprovalTypes" Multiplicity="0..1" />
+          <End Role="OrderApproval" Type="Self.OrderApproval" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApproval">
+              <PropertyRef Name="EquipmentTypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApproval_NomenclatureGroupID">
+          <End Role="OrderApprovalNomenclatureGroups" Type="Self.OrderApprovalNomenclatureGroups" Multiplicity="0..1" />
+          <End Role="OrderApproval" Type="Self.OrderApproval" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalNomenclatureGroups">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApproval">
+              <PropertyRef Name="NomenclatureGroupID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApprovalDrafts_OrderApprovalID">
+          <End Role="OrderApproval" Type="Self.OrderApproval" Multiplicity="1" />
+          <End Role="OrderApprovalDrafts" Type="Self.OrderApprovalDrafts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApproval">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalDrafts">
+              <PropertyRef Name="OrderApprovalID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApprovalHistory_OrderApprovalID">
+          <End Role="OrderApproval" Type="Self.OrderApproval" Multiplicity="1" />
+          <End Role="OrderApprovalHistory" Type="Self.OrderApprovalHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApproval">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalHistory">
+              <PropertyRef Name="OrderApprovalID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes">
+          <End Role="OrderApprovalTypes" Type="Self.OrderApprovalTypes" Multiplicity="1" />
+          <End Role="OrderApprovalNomenclatureGroups" Type="Self.OrderApprovalNomenclatureGroups" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalNomenclatureGroups">
+              <PropertyRef Name="TypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="FOXModelStoreContainer">
+          <EntitySet Name="calend" EntityType="Self.calend" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LIST_FR" EntityType="Self.LIST_FR" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="listdse" EntityType="Self.listdse" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="oborud" EntityType="Self.oborud" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="olistdse" EntityType="Self.olistdse" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderApproval" EntityType="Self.OrderApproval" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderApprovalDrafts" EntityType="Self.OrderApprovalDrafts" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderApprovalHistory" EntityType="Self.OrderApprovalHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderApprovalNomenclatureGroups" EntityType="Self.OrderApprovalNomenclatureGroups" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderApprovalTypes" EntityType="Self.OrderApprovalTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="os_pro" EntityType="Self.os_pro" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="prod" EntityType="Self.prod" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="s_oper" EntityType="Self.s_oper" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="zayvka" EntityType="Self.zayvka" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_OrderApproval_EquipmentTypeID" Association="Self.FK_OrderApproval_EquipmentTypeID">
+            <End Role="OrderApprovalTypes" EntitySet="OrderApprovalTypes" />
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApproval_NomenclatureGroupID" Association="Self.FK_OrderApproval_NomenclatureGroupID">
+            <End Role="OrderApprovalNomenclatureGroups" EntitySet="OrderApprovalNomenclatureGroups" />
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalDrafts_OrderApprovalID" Association="Self.FK_OrderApprovalDrafts_OrderApprovalID">
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+            <End Role="OrderApprovalDrafts" EntitySet="OrderApprovalDrafts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalHistory_OrderApprovalID" Association="Self.FK_OrderApprovalHistory_OrderApprovalID">
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+            <End Role="OrderApprovalHistory" EntitySet="OrderApprovalHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" Association="Self.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes">
+            <End Role="OrderApprovalTypes" EntitySet="OrderApprovalTypes" />
+            <End Role="OrderApprovalNomenclatureGroups" EntitySet="OrderApprovalNomenclatureGroups" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="FOXModel" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2009/11/edm" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+        <EntityContainer Name="FOXEntities" annotation:LazyLoadingEnabled="true" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+          <EntitySet Name="os_pro" EntityType="FOXModel.os_pro" />
+          <EntitySet Name="prod" EntityType="FOXModel.prod" />
+          <EntitySet Name="zayvka" EntityType="FOXModel.zayvka" />
+          <EntitySet Name="LIST_FR" EntityType="FOXModel.LIST_FR" />
+          <EntitySet Name="listdse" EntityType="FOXModel.listdse" />
+          <EntitySet Name="oborud" EntityType="FOXModel.oborud" />
+          <EntitySet Name="olistdse" EntityType="FOXModel.olistdse" />
+          <EntitySet Name="s_oper" EntityType="FOXModel.s_oper" />
+          <EntitySet Name="calend" EntityType="FOXModel.calend" />
+          <EntitySet Name="OrderApproval" EntityType="FOXModel.OrderApproval" />
+          <EntitySet Name="OrderApprovalDrafts" EntityType="FOXModel.OrderApprovalDrafts" />
+          <EntitySet Name="OrderApprovalHistory" EntityType="FOXModel.OrderApprovalHistory" />
+          <EntitySet Name="OrderApprovalNomenclatureGroups" EntityType="FOXModel.OrderApprovalNomenclatureGroups" />
+          <EntitySet Name="OrderApprovalTypes" EntityType="FOXModel.OrderApprovalTypes" />
+          <AssociationSet Name="FK_OrderApproval_EquipmentTypeID" Association="FOXModel.FK_OrderApproval_EquipmentTypeID">
+            <End Role="OrderApprovalTypes" EntitySet="OrderApprovalTypes" />
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApproval_NomenclatureGroupID" Association="FOXModel.FK_OrderApproval_NomenclatureGroupID">
+            <End Role="OrderApprovalNomenclatureGroups" EntitySet="OrderApprovalNomenclatureGroups" />
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalDrafts_OrderApprovalID" Association="FOXModel.FK_OrderApprovalDrafts_OrderApprovalID">
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+            <End Role="OrderApprovalDrafts" EntitySet="OrderApprovalDrafts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalHistory_OrderApprovalID" Association="FOXModel.FK_OrderApprovalHistory_OrderApprovalID">
+            <End Role="OrderApproval" EntitySet="OrderApproval" />
+            <End Role="OrderApprovalHistory" EntitySet="OrderApprovalHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" Association="FOXModel.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes">
+            <End Role="OrderApprovalTypes" EntitySet="OrderApprovalTypes" />
+            <End Role="OrderApprovalNomenclatureGroups" EntitySet="OrderApprovalNomenclatureGroups" />
+          </AssociationSet>
+          </EntityContainer>
+        <EntityType Name="os_pro">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="zak_1" Type="String" MaxLength="7" FixedLength="true" Unicode="false" />
+          <Property Name="to_2" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="niz_3" Type="String" MaxLength="25" FixedLength="true" Unicode="false" />
+          <Property Name="draft_4" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="n_dra_5" Type="String" MaxLength="14" FixedLength="true" Unicode="false" />
+          <Property Name="osn_6" Type="String" MaxLength="14" FixedLength="true" Unicode="false" />
+          <Property Name="osna_7" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
+          <Property Name="osh_8" Type="Decimal" Precision="1" Scale="0" />
+          <Property Name="s_pr_9" Type="DateTime" Precision="0" />
+          <Property Name="s_iz_10" Type="DateTime" Precision="0" />
+          <Property Name="s_vn_11" Type="DateTime" Precision="0" />
+          <Property Name="d_pr_12" Type="DateTime" Precision="0" />
+          <Property Name="d_iz_13" Type="DateTime" Precision="0" />
+          <Property Name="d_vn_14" Type="DateTime" Precision="0" />
+          <Property Name="z_z_15" Type="String" MaxLength="5" FixedLength="true" Unicode="false" />
+          <Property Name="z_iz_16" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="z_p_17" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="mesto_18" Type="String" MaxLength="12" FixedLength="true" Unicode="false" />
+          <Property Name="di1_19" Type="DateTime" Precision="0" />
+          <Property Name="k1_20" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="di2_21" Type="DateTime" Precision="0" />
+          <Property Name="k2_22" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="d_otk_23" Type="DateTime" Precision="0" />
+          <Property Name="tr_p_24" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="mat_25" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="sved_26" Type="String" MaxLength="50" FixedLength="true" Unicode="false" />
+          <Property Name="ko1_27" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="num_28" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="kod_29" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="zakf_30" Type="String" MaxLength="8" FixedLength="true" Unicode="false" />
+          <Property Name="schet_31" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="k_pl_32" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="k_f_33" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="tr_f_34" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="uch_i_35" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="klad_36" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="osn_37" Type="Decimal" Precision="1" Scale="0" />
+          <Property Name="xar_38" Type="String" MaxLength="2" FixedLength="true" Unicode="false" />
+          <Property Name="oper" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="rab_m" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="tproc" Type="String" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="graf" Type="String" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="fio" Type="String" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="d_zap" Type="DateTime" Precision="0" />
+          <Property Name="d_spp" Type="DateTime" Precision="0" />
+          <Property Name="pr" Type="String" MaxLength="2" FixedLength="true" Unicode="false" />
+          <Property Name="znum1" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="dat_cz" Type="DateTime" Precision="0" />
+          <Property Name="zak_nar" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="nom_nar" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="dat_cz1" Type="DateTime" Precision="0" />
+          <Property Name="ispolk" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+        </EntityType>
+        <EntityType Name="prod">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="zakaz" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="nom" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="dr" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="kol" Type="Decimal" Precision="6" Scale="0" />
+          <Property Name="do" Type="DateTime" Precision="0" />
+          <Property Name="z_o" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="n_o" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="z_p" Type="String" MaxLength="8" FixedLength="true" Unicode="false" />
+          <Property Name="d_i" Type="DateTime" Precision="0" />
+          <Property Name="z_t" Type="String" MaxLength="5" FixedLength="true" Unicode="false" />
+          <Property Name="nm" Type="String" MaxLength="45" FixedLength="true" Unicode="false" />
+          <Property Name="n_p" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="prim" Type="String" MaxLength="100" FixedLength="true" Unicode="false" />
+          <Property Name="acr" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="cex" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="nmm" Type="String" MaxLength="45" FixedLength="true" Unicode="false" />
+          <Property Name="bal" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="zak_1" Type="String" MaxLength="7" FixedLength="true" Unicode="true" />
+        </EntityType>
+        <EntityType Name="zayvka">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="dza" Type="DateTime" Precision="0" />
+          <Property Name="draft" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="rab_m" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="kpodrt" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="kodop" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="ksi" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="klo" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="klg" Type="Decimal" Precision="6" Scale="0" />
+          <Property Name="naimosn" Type="String" MaxLength="50" FixedLength="true" Unicode="false" />
+          <Property Name="koltex" Type="Decimal" Precision="4" Scale="1" />
+          <Property Name="imyt" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="dizmt" Type="DateTime" Precision="0" />
+          <Property Name="tzak" Type="Decimal" Precision="9" Scale="0" />
+          <Property Name="tf" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="ru" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="prim_an" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
+          <Property Name="prim" Type="String" MaxLength="50" FixedLength="true" Unicode="false" />
+          <Property Name="graf" Type="String" MaxLength="14" FixedLength="true" Unicode="false" />
+          <Property Name="draftiz" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="ndraftiz" Type="String" MaxLength="30" FixedLength="true" Unicode="false" />
+          <Property Name="cexpol" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="kladov" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="dsog" Type="DateTime" Precision="0" />
+          <Property Name="sog" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="nsog" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="dsog2" Type="DateTime" Precision="0" />
+          <Property Name="sog2" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="nsog2" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="draftosn" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="naosnsl" Type="String" MaxLength="50" FixedLength="true" Unicode="false" />
+          <Property Name="kl" Type="Decimal" Precision="1" Scale="0" />
+          <Property Name="trud" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="imyk" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="dizmk" Type="DateTime" Precision="0" />
+          <Property Name="p" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="zakf" Type="String" MaxLength="8" FixedLength="true" Unicode="false" />
+          <Property Name="kolzak" Type="Decimal" Precision="6" Scale="1" />
+          <Property Name="izv" Type="String" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="kod_29" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="ko1_27" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="kpod" Type="String" MaxLength="5" FixedLength="true" Unicode="false" />
+          <Property Name="znum1" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="dataosn" Type="DateTime" Precision="0" />
+          <Property Name="chek" Type="Boolean" />
+          <Property Name="imyts" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="ispolk" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="trudpr_p" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="trudpr_f" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="dop" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="zak_1" Type="String" MaxLength="7" FixedLength="true" Unicode="false" />
+          <Property Name="dt_ko" Type="DateTime" Precision="0" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="predtz" Type="Decimal" Precision="10" Scale="0" />
+          <Property Name="is_act" Type="Boolean" />
+          <Property Name="zakaz" Type="Int16" Nullable="false" />
+          <Property Name="nom" Type="Int16" Nullable="false" />
+          <Property Name="grafik_id" Type="Int32" />
+          <Property Name="dzap" Type="DateTime" Precision="0" />
+          <Property Name="namedraft" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="os_pro_id" Type="Int32" />
+          <Property Name="comments" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="LIST_FR">
+          <Key>
+            <PropertyRef Name="WHAT" />
+          </Key>
+          <Property Name="WHAT" Type="Decimal" Nullable="false" Precision="14" Scale="2" />
+          <Property Name="NM" Type="String" MaxLength="40" FixedLength="true" Unicode="true" />
+        </EntityType>
+        <EntityType Name="listdse">
+          <Key>
+            <PropertyRef Name="DRAFT" />
+          </Key>
+          <Property Name="DRAFT" Type="Decimal" Nullable="false" Precision="9" Scale="0" />
+          <Property Name="DSE" Type="String" MaxLength="40" FixedLength="true" Unicode="false" />
+        </EntityType>
+        <EntityType Name="oborud">
+          <Key>
+            <PropertyRef Name="rab_m" />
+          </Key>
+          <Property Name="code" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="oborud1" Type="String" MaxLength="30" FixedLength="true" Unicode="true" />
+          <Property Name="cex" Type="String" MaxLength="3" FixedLength="true" Unicode="true" />
+          <Property Name="rab_m" Type="Decimal" Nullable="false" Precision="3" Scale="0" />
+          <Property Name="nom_u" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="kol_ed" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="cex1" Type="String" MaxLength="3" FixedLength="true" Unicode="true" />
+          <Property Name="kol_ob" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="res_ob" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="res_pr" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="res_s" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="gr_ob" Type="Decimal" Precision="1" Scale="0" />
+          <Property Name="res_pipl" Type="Decimal" Precision="4" Scale="1" />
+        </EntityType>
+        <EntityType Name="olistdse">
+          <Key>
+            <PropertyRef Name="draft" />
+          </Key>
+          <Property Name="draft" Type="Decimal" Nullable="false" Precision="13" Scale="2" />
+          <Property Name="dse" Type="String" MaxLength="40" FixedLength="true" Unicode="false" />
+        </EntityType>
+        <EntityType Name="s_oper">
+          <Key>
+            <PropertyRef Name="code" />
+          </Key>
+          <Property Name="code" Type="Decimal" Nullable="false" Precision="4" Scale="0" />
+          <Property Name="oper" Type="String" MaxLength="44" FixedLength="true" Unicode="true" />
+          <Property Name="cex" Type="String" MaxLength="3" FixedLength="true" Unicode="true" />
+          <Property Name="kontr" Type="Decimal" Precision="1" Scale="0" />
+        </EntityType>
+        <EntityType Name="calend">
+          <Key>
+            <PropertyRef Name="mday" />
+          </Key>
+          <Property Name="mday" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="v" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="OrderApproval">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="zayvkaID" Type="Int32" />
+          <Property Name="ManufacturingTerm" Type="DateTime" Precision="0" />
+          <Property Name="OpenAt" Type="DateTime" Precision="0" />
+          <Property Name="Draft" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="DraftName" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Technologist" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CoreDraft" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="CoreDraftName" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Workshop" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="Warehouse" Type="Decimal" Precision="3" Scale="0" />
+          <Property Name="Workplace" Type="Decimal" Precision="5" Scale="0" />
+          <Property Name="Operation" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="EquipmentNameFromTechnologist" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Analog" Type="String" MaxLength="20" FixedLength="true" Unicode="false" />
+          <Property Name="EquipmentQuantityForOperation" Type="Decimal" Precision="4" Scale="1" />
+          <Property Name="IsByMemo" Type="Boolean" Nullable="false" />
+          <Property Name="MemoNumber" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="MemoAuthor" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Order" Type="Int32" />
+          <Property Name="Number" Type="Int32" />
+          <Property Name="OrderName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CoreOrder" Type="Int32" />
+          <Property Name="CoreNumber" Type="Int32" />
+          <Property Name="OpenAtByMemo" Type="DateTime" Precision="0" />
+          <Property Name="NomenclatureGroupID" Type="Int32" />
+          <Property Name="EquipmentTypeID" Type="Int32" />
+          <Property Name="DraftByMemo" Type="Decimal" Precision="13" Scale="2" />
+          <Property Name="DraftNameByMemo" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Balance" Type="Int32" />
+          <Property Name="WorkshopByMemo" Type="String" MaxLength="3" FixedLength="true" Unicode="false" />
+          <Property Name="EquipmentRequiredQuantityByMemo" Type="Decimal" Precision="6" Scale="1" />
+          <NavigationProperty Name="OrderApprovalTypes" Relationship="FOXModel.FK_OrderApproval_EquipmentTypeID" FromRole="OrderApproval" ToRole="OrderApprovalTypes" />
+          <NavigationProperty Name="OrderApprovalNomenclatureGroups" Relationship="FOXModel.FK_OrderApproval_NomenclatureGroupID" FromRole="OrderApproval" ToRole="OrderApprovalNomenclatureGroups" />
+          <NavigationProperty Name="OrderApprovalDrafts" Relationship="FOXModel.FK_OrderApprovalDrafts_OrderApprovalID" FromRole="OrderApproval" ToRole="OrderApprovalDrafts" />
+          <NavigationProperty Name="OrderApprovalHistory" Relationship="FOXModel.FK_OrderApprovalHistory_OrderApprovalID" FromRole="OrderApproval" ToRole="OrderApprovalHistory" />
+        </EntityType>
+        <EntityType Name="OrderApprovalDrafts">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrderApprovalID" Type="Int32" Nullable="false" />
+          <Property Name="EquipmentDraft" Type="Decimal" Nullable="false" Precision="13" Scale="2" />
+          <Property Name="EquipmentName" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Cooperation" Type="Boolean" Nullable="false" />
+          <Property Name="IsDeletedFromOrder" Type="Boolean" Nullable="false" />
+          <Property Name="EquimentRequiredQuantity" Type="Decimal" Precision="6" Scale="1" />
+          <Property Name="CommentForDesign" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CommentForManufacturing" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OrderApproval" Relationship="FOXModel.FK_OrderApprovalDrafts_OrderApprovalID" FromRole="OrderApprovalDrafts" ToRole="OrderApproval" />
+        </EntityType>
+        <EntityType Name="OrderApprovalHistory">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrderApprovalID" Type="Int32" Nullable="false" />
+          <Property Name="ReceiptDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="CompletionDate" Type="DateTime" Precision="0" />
+          <Property Name="Term" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="RecipientRole" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="RecipientName" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SenderRole" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="SenderName" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="9" FixedLength="false" Unicode="false" />
+          <Property Name="Result" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="IsRework" Type="Boolean" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="OrderApproval" Relationship="FOXModel.FK_OrderApprovalHistory_OrderApprovalID" FromRole="OrderApprovalHistory" ToRole="OrderApproval" />
+        </EntityType>
+        <EntityType Name="OrderApprovalNomenclatureGroups">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GroupName" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="TypeID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OrderApproval" Relationship="FOXModel.FK_OrderApproval_NomenclatureGroupID" FromRole="OrderApprovalNomenclatureGroups" ToRole="OrderApproval" />
+          <NavigationProperty Name="OrderApprovalTypes" Relationship="FOXModel.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" FromRole="OrderApprovalNomenclatureGroups" ToRole="OrderApprovalTypes" />
+        </EntityType>
+        <EntityType Name="OrderApprovalTypes">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Group" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="NewDevelopmentTerm" Type="Int32" Nullable="false" />
+          <Property Name="DoubleTerm" Type="Int32" Nullable="false" />
+          <Property Name="RepairModificationTerm" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OrderApproval" Relationship="FOXModel.FK_OrderApproval_EquipmentTypeID" FromRole="OrderApprovalTypes" ToRole="OrderApproval" />
+          <NavigationProperty Name="OrderApprovalNomenclatureGroups" Relationship="FOXModel.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" FromRole="OrderApprovalTypes" ToRole="OrderApprovalNomenclatureGroups" />
+        </EntityType>
+        <Association Name="FK_OrderApproval_EquipmentTypeID">
+          <End Type="FOXModel.OrderApprovalTypes" Role="OrderApprovalTypes" Multiplicity="0..1" />
+          <End Type="FOXModel.OrderApproval" Role="OrderApproval" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApproval">
+              <PropertyRef Name="EquipmentTypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApproval_NomenclatureGroupID">
+          <End Type="FOXModel.OrderApprovalNomenclatureGroups" Role="OrderApprovalNomenclatureGroups" Multiplicity="0..1" />
+          <End Type="FOXModel.OrderApproval" Role="OrderApproval" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalNomenclatureGroups">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApproval">
+              <PropertyRef Name="NomenclatureGroupID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApprovalDrafts_OrderApprovalID">
+          <End Type="FOXModel.OrderApproval" Role="OrderApproval" Multiplicity="1" />
+          <End Type="FOXModel.OrderApprovalDrafts" Role="OrderApprovalDrafts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApproval">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalDrafts">
+              <PropertyRef Name="OrderApprovalID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApprovalHistory_OrderApprovalID">
+          <End Type="FOXModel.OrderApproval" Role="OrderApproval" Multiplicity="1" />
+          <End Type="FOXModel.OrderApprovalHistory" Role="OrderApprovalHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApproval">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalHistory">
+              <PropertyRef Name="OrderApprovalID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes">
+          <End Type="FOXModel.OrderApprovalTypes" Role="OrderApprovalTypes" Multiplicity="1" />
+          <End Type="FOXModel.OrderApprovalNomenclatureGroups" Role="OrderApprovalNomenclatureGroups" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalTypes">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalNomenclatureGroups">
+              <PropertyRef Name="TypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="FOXModelStoreContainer" CdmEntityContainer="FOXEntities">
+          <EntitySetMapping Name="os_pro">
+            <EntityTypeMapping TypeName="FOXModel.os_pro">
+              <MappingFragment StoreEntitySet="os_pro">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="ispolk" ColumnName="ispolk" />
+                <ScalarProperty Name="dat_cz1" ColumnName="dat_cz1" />
+                <ScalarProperty Name="nom_nar" ColumnName="nom_nar" />
+                <ScalarProperty Name="zak_nar" ColumnName="zak_nar" />
+                <ScalarProperty Name="dat_cz" ColumnName="dat_cz" />
+                <ScalarProperty Name="znum1" ColumnName="znum1" />
+                <ScalarProperty Name="pr" ColumnName="pr" />
+                <ScalarProperty Name="d_spp" ColumnName="d_spp" />
+                <ScalarProperty Name="d_zap" ColumnName="d_zap" />
+                <ScalarProperty Name="fio" ColumnName="fio" />
+                <ScalarProperty Name="graf" ColumnName="graf" />
+                <ScalarProperty Name="tproc" ColumnName="tproc" />
+                <ScalarProperty Name="rab_m" ColumnName="rab_m" />
+                <ScalarProperty Name="oper" ColumnName="oper" />
+                <ScalarProperty Name="xar_38" ColumnName="xar_38" />
+                <ScalarProperty Name="osn_37" ColumnName="osn_37" />
+                <ScalarProperty Name="klad_36" ColumnName="klad_36" />
+                <ScalarProperty Name="uch_i_35" ColumnName="uch_i_35" />
+                <ScalarProperty Name="tr_f_34" ColumnName="tr_f_34" />
+                <ScalarProperty Name="k_f_33" ColumnName="k_f_33" />
+                <ScalarProperty Name="k_pl_32" ColumnName="k_pl_32" />
+                <ScalarProperty Name="schet_31" ColumnName="schet_31" />
+                <ScalarProperty Name="zakf_30" ColumnName="zakf_30" />
+                <ScalarProperty Name="kod_29" ColumnName="kod_29" />
+                <ScalarProperty Name="num_28" ColumnName="num_28" />
+                <ScalarProperty Name="ko1_27" ColumnName="ko1_27" />
+                <ScalarProperty Name="sved_26" ColumnName="sved_26" />
+                <ScalarProperty Name="mat_25" ColumnName="mat_25" />
+                <ScalarProperty Name="tr_p_24" ColumnName="tr_p_24" />
+                <ScalarProperty Name="d_otk_23" ColumnName="d_otk_23" />
+                <ScalarProperty Name="k2_22" ColumnName="k2_22" />
+                <ScalarProperty Name="di2_21" ColumnName="di2_21" />
+                <ScalarProperty Name="k1_20" ColumnName="k1_20" />
+                <ScalarProperty Name="di1_19" ColumnName="di1_19" />
+                <ScalarProperty Name="mesto_18" ColumnName="mesto_18" />
+                <ScalarProperty Name="z_p_17" ColumnName="z_p_17" />
+                <ScalarProperty Name="z_iz_16" ColumnName="z_iz_16" />
+                <ScalarProperty Name="z_z_15" ColumnName="z_z_15" />
+                <ScalarProperty Name="d_vn_14" ColumnName="d_vn_14" />
+                <ScalarProperty Name="d_iz_13" ColumnName="d_iz_13" />
+                <ScalarProperty Name="d_pr_12" ColumnName="d_pr_12" />
+                <ScalarProperty Name="s_vn_11" ColumnName="s_vn_11" />
+                <ScalarProperty Name="s_iz_10" ColumnName="s_iz_10" />
+                <ScalarProperty Name="s_pr_9" ColumnName="s_pr_9" />
+                <ScalarProperty Name="osh_8" ColumnName="osh_8" />
+                <ScalarProperty Name="osna_7" ColumnName="osna_7" />
+                <ScalarProperty Name="osn_6" ColumnName="osn_6" />
+                <ScalarProperty Name="n_dra_5" ColumnName="n_dra_5" />
+                <ScalarProperty Name="draft_4" ColumnName="draft_4" />
+                <ScalarProperty Name="niz_3" ColumnName="niz_3" />
+                <ScalarProperty Name="to_2" ColumnName="to_2" />
+                <ScalarProperty Name="zak_1" ColumnName="zak_1" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="prod">
+            <EntityTypeMapping TypeName="FOXModel.prod">
+              <MappingFragment StoreEntitySet="prod">
+                <ScalarProperty Name="zak_1" ColumnName="zak_1" />
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="bal" ColumnName="bal" />
+                <ScalarProperty Name="nmm" ColumnName="nmm" />
+                <ScalarProperty Name="cex" ColumnName="cex" />
+                <ScalarProperty Name="acr" ColumnName="acr" />
+                <ScalarProperty Name="prim" ColumnName="prim" />
+                <ScalarProperty Name="n_p" ColumnName="n_p" />
+                <ScalarProperty Name="nm" ColumnName="nm" />
+                <ScalarProperty Name="z_t" ColumnName="z_t" />
+                <ScalarProperty Name="d_i" ColumnName="d_i" />
+                <ScalarProperty Name="z_p" ColumnName="z_p" />
+                <ScalarProperty Name="n_o" ColumnName="n_o" />
+                <ScalarProperty Name="z_o" ColumnName="z_o" />
+                <ScalarProperty Name="do" ColumnName="do" />
+                <ScalarProperty Name="kol" ColumnName="kol" />
+                <ScalarProperty Name="dr" ColumnName="dr" />
+                <ScalarProperty Name="nom" ColumnName="nom" />
+                <ScalarProperty Name="zakaz" ColumnName="zakaz" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="zayvka">
+            <EntityTypeMapping TypeName="FOXModel.zayvka">
+              <MappingFragment StoreEntitySet="zayvka">
+                <ScalarProperty Name="comments" ColumnName="comments" />
+                <ScalarProperty Name="os_pro_id" ColumnName="os_pro_id" />
+                <ScalarProperty Name="namedraft" ColumnName="namedraft" />
+                <ScalarProperty Name="dzap" ColumnName="dzap" />
+                <ScalarProperty Name="grafik_id" ColumnName="grafik_id" />
+                <ScalarProperty Name="nom" ColumnName="nom" />
+                <ScalarProperty Name="zakaz" ColumnName="zakaz" />
+                <ScalarProperty Name="is_act" ColumnName="is_act" />
+                <ScalarProperty Name="predtz" ColumnName="predtz" />
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="dt_ko" ColumnName="dt_ko" />
+                <ScalarProperty Name="zak_1" ColumnName="zak_1" />
+                <ScalarProperty Name="dop" ColumnName="dop" />
+                <ScalarProperty Name="trudpr_f" ColumnName="trudpr_f" />
+                <ScalarProperty Name="trudpr_p" ColumnName="trudpr_p" />
+                <ScalarProperty Name="ispolk" ColumnName="ispolk" />
+                <ScalarProperty Name="imyts" ColumnName="imyts" />
+                <ScalarProperty Name="chek" ColumnName="chek" />
+                <ScalarProperty Name="dataosn" ColumnName="dataosn" />
+                <ScalarProperty Name="znum1" ColumnName="znum1" />
+                <ScalarProperty Name="kpod" ColumnName="kpod" />
+                <ScalarProperty Name="ko1_27" ColumnName="ko1_27" />
+                <ScalarProperty Name="kod_29" ColumnName="kod_29" />
+                <ScalarProperty Name="izv" ColumnName="izv" />
+                <ScalarProperty Name="kolzak" ColumnName="kolzak" />
+                <ScalarProperty Name="zakf" ColumnName="zakf" />
+                <ScalarProperty Name="p" ColumnName="p" />
+                <ScalarProperty Name="dizmk" ColumnName="dizmk" />
+                <ScalarProperty Name="imyk" ColumnName="imyk" />
+                <ScalarProperty Name="trud" ColumnName="trud" />
+                <ScalarProperty Name="kl" ColumnName="kl" />
+                <ScalarProperty Name="naosnsl" ColumnName="naosnsl" />
+                <ScalarProperty Name="draftosn" ColumnName="draftosn" />
+                <ScalarProperty Name="nsog2" ColumnName="nsog2" />
+                <ScalarProperty Name="sog2" ColumnName="sog2" />
+                <ScalarProperty Name="dsog2" ColumnName="dsog2" />
+                <ScalarProperty Name="nsog" ColumnName="nsog" />
+                <ScalarProperty Name="sog" ColumnName="sog" />
+                <ScalarProperty Name="dsog" ColumnName="dsog" />
+                <ScalarProperty Name="kladov" ColumnName="kladov" />
+                <ScalarProperty Name="cexpol" ColumnName="cexpol" />
+                <ScalarProperty Name="ndraftiz" ColumnName="ndraftiz" />
+                <ScalarProperty Name="draftiz" ColumnName="draftiz" />
+                <ScalarProperty Name="graf" ColumnName="graf" />
+                <ScalarProperty Name="prim" ColumnName="prim" />
+                <ScalarProperty Name="prim_an" ColumnName="prim_an" />
+                <ScalarProperty Name="ru" ColumnName="ru" />
+                <ScalarProperty Name="tf" ColumnName="tf" />
+                <ScalarProperty Name="tzak" ColumnName="tzak" />
+                <ScalarProperty Name="dizmt" ColumnName="dizmt" />
+                <ScalarProperty Name="imyt" ColumnName="imyt" />
+                <ScalarProperty Name="koltex" ColumnName="koltex" />
+                <ScalarProperty Name="naimosn" ColumnName="naimosn" />
+                <ScalarProperty Name="klg" ColumnName="klg" />
+                <ScalarProperty Name="klo" ColumnName="klo" />
+                <ScalarProperty Name="ksi" ColumnName="ksi" />
+                <ScalarProperty Name="kodop" ColumnName="kodop" />
+                <ScalarProperty Name="kpodrt" ColumnName="kpodrt" />
+                <ScalarProperty Name="rab_m" ColumnName="rab_m" />
+                <ScalarProperty Name="draft" ColumnName="draft" />
+                <ScalarProperty Name="dza" ColumnName="dza" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LIST_FR">
+            <EntityTypeMapping TypeName="FOXModel.LIST_FR">
+              <MappingFragment StoreEntitySet="LIST_FR">
+                <ScalarProperty Name="NM" ColumnName="NM" />
+                <ScalarProperty Name="WHAT" ColumnName="WHAT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="listdse">
+            <EntityTypeMapping TypeName="FOXModel.listdse">
+              <MappingFragment StoreEntitySet="listdse">
+                <ScalarProperty Name="DSE" ColumnName="DSE" />
+                <ScalarProperty Name="DRAFT" ColumnName="DRAFT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="oborud">
+            <EntityTypeMapping TypeName="FOXModel.oborud">
+              <MappingFragment StoreEntitySet="oborud">
+                <ScalarProperty Name="res_pipl" ColumnName="res_pipl" />
+                <ScalarProperty Name="gr_ob" ColumnName="gr_ob" />
+                <ScalarProperty Name="res_s" ColumnName="res_s" />
+                <ScalarProperty Name="res_pr" ColumnName="res_pr" />
+                <ScalarProperty Name="res_ob" ColumnName="res_ob" />
+                <ScalarProperty Name="kol_ob" ColumnName="kol_ob" />
+                <ScalarProperty Name="cex1" ColumnName="cex1" />
+                <ScalarProperty Name="kol_ed" ColumnName="kol_ed" />
+                <ScalarProperty Name="nom_u" ColumnName="nom_u" />
+                <ScalarProperty Name="rab_m" ColumnName="rab_m" />
+                <ScalarProperty Name="cex" ColumnName="cex" />
+                <ScalarProperty Name="oborud1" ColumnName="oborud" />
+                <ScalarProperty Name="code" ColumnName="code" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="olistdse">
+            <EntityTypeMapping TypeName="FOXModel.olistdse">
+              <MappingFragment StoreEntitySet="olistdse">
+                <ScalarProperty Name="dse" ColumnName="dse" />
+                <ScalarProperty Name="draft" ColumnName="draft" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="s_oper">
+            <EntityTypeMapping TypeName="FOXModel.s_oper">
+              <MappingFragment StoreEntitySet="s_oper">
+                <ScalarProperty Name="kontr" ColumnName="kontr" />
+                <ScalarProperty Name="cex" ColumnName="cex" />
+                <ScalarProperty Name="oper" ColumnName="oper" />
+                <ScalarProperty Name="code" ColumnName="code" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="calend">
+            <EntityTypeMapping TypeName="FOXModel.calend">
+              <MappingFragment StoreEntitySet="calend">
+                <ScalarProperty Name="v" ColumnName="v" />
+                <ScalarProperty Name="mday" ColumnName="mday" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderApproval">
+            <EntityTypeMapping TypeName="FOXModel.OrderApproval">
+              <MappingFragment StoreEntitySet="OrderApproval">
+                <ScalarProperty Name="EquipmentRequiredQuantityByMemo" ColumnName="EquipmentRequiredQuantityByMemo" />
+                <ScalarProperty Name="WorkshopByMemo" ColumnName="WorkshopByMemo" />
+                <ScalarProperty Name="Balance" ColumnName="Balance" />
+                <ScalarProperty Name="DraftNameByMemo" ColumnName="DraftNameByMemo" />
+                <ScalarProperty Name="DraftByMemo" ColumnName="DraftByMemo" />
+                <ScalarProperty Name="EquipmentTypeID" ColumnName="EquipmentTypeID" />
+                <ScalarProperty Name="NomenclatureGroupID" ColumnName="NomenclatureGroupID" />
+                <ScalarProperty Name="OpenAtByMemo" ColumnName="OpenAtByMemo" />
+                <ScalarProperty Name="CoreNumber" ColumnName="CoreNumber" />
+                <ScalarProperty Name="CoreOrder" ColumnName="CoreOrder" />
+                <ScalarProperty Name="OrderName" ColumnName="OrderName" />
+                <ScalarProperty Name="Number" ColumnName="Number" />
+                <ScalarProperty Name="Order" ColumnName="Order" />
+                <ScalarProperty Name="MemoAuthor" ColumnName="MemoAuthor" />
+                <ScalarProperty Name="MemoNumber" ColumnName="MemoNumber" />
+                <ScalarProperty Name="IsByMemo" ColumnName="IsByMemo" />
+                <ScalarProperty Name="EquipmentQuantityForOperation" ColumnName="EquipmentQuantityForOperation" />
+                <ScalarProperty Name="Analog" ColumnName="Analog" />
+                <ScalarProperty Name="EquipmentNameFromTechnologist" ColumnName="EquipmentNameFromTechnologist" />
+                <ScalarProperty Name="Operation" ColumnName="Operation" />
+                <ScalarProperty Name="Workplace" ColumnName="Workplace" />
+                <ScalarProperty Name="Warehouse" ColumnName="Warehouse" />
+                <ScalarProperty Name="Workshop" ColumnName="Workshop" />
+                <ScalarProperty Name="CoreDraftName" ColumnName="CoreDraftName" />
+                <ScalarProperty Name="CoreDraft" ColumnName="CoreDraft" />
+                <ScalarProperty Name="Technologist" ColumnName="Technologist" />
+                <ScalarProperty Name="DraftName" ColumnName="DraftName" />
+                <ScalarProperty Name="Draft" ColumnName="Draft" />
+                <ScalarProperty Name="OpenAt" ColumnName="OpenAt" />
+                <ScalarProperty Name="ManufacturingTerm" ColumnName="ManufacturingTerm" />
+                <ScalarProperty Name="zayvkaID" ColumnName="zayvkaID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderApprovalDrafts">
+            <EntityTypeMapping TypeName="FOXModel.OrderApprovalDrafts">
+              <MappingFragment StoreEntitySet="OrderApprovalDrafts">
+                <ScalarProperty Name="CommentForManufacturing" ColumnName="CommentForManufacturing" />
+                <ScalarProperty Name="CommentForDesign" ColumnName="CommentForDesign" />
+                <ScalarProperty Name="EquimentRequiredQuantity" ColumnName="EquimentRequiredQuantity" />
+                <ScalarProperty Name="IsDeletedFromOrder" ColumnName="IsDeletedFromOrder" />
+                <ScalarProperty Name="Cooperation" ColumnName="Cooperation" />
+                <ScalarProperty Name="EquipmentName" ColumnName="EquipmentName" />
+                <ScalarProperty Name="EquipmentDraft" ColumnName="EquipmentDraft" />
+                <ScalarProperty Name="OrderApprovalID" ColumnName="OrderApprovalID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderApprovalHistory">
+            <EntityTypeMapping TypeName="FOXModel.OrderApprovalHistory">
+              <MappingFragment StoreEntitySet="OrderApprovalHistory">
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="IsRework" ColumnName="IsRework" />
+                <ScalarProperty Name="Result" ColumnName="Result" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="SenderName" ColumnName="SenderName" />
+                <ScalarProperty Name="SenderRole" ColumnName="SenderRole" />
+                <ScalarProperty Name="RecipientName" ColumnName="RecipientName" />
+                <ScalarProperty Name="RecipientRole" ColumnName="RecipientRole" />
+                <ScalarProperty Name="Term" ColumnName="Term" />
+                <ScalarProperty Name="CompletionDate" ColumnName="CompletionDate" />
+                <ScalarProperty Name="ReceiptDate" ColumnName="ReceiptDate" />
+                <ScalarProperty Name="OrderApprovalID" ColumnName="OrderApprovalID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderApprovalNomenclatureGroups">
+            <EntityTypeMapping TypeName="FOXModel.OrderApprovalNomenclatureGroups">
+              <MappingFragment StoreEntitySet="OrderApprovalNomenclatureGroups">
+                <ScalarProperty Name="TypeID" ColumnName="TypeID" />
+                <ScalarProperty Name="GroupName" ColumnName="GroupName" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderApprovalTypes">
+            <EntityTypeMapping TypeName="FOXModel.OrderApprovalTypes">
+              <MappingFragment StoreEntitySet="OrderApprovalTypes">
+                <ScalarProperty Name="RepairModificationTerm" ColumnName="RepairModificationTerm" />
+                <ScalarProperty Name="DoubleTerm" ColumnName="DoubleTerm" />
+                <ScalarProperty Name="NewDevelopmentTerm" ColumnName="NewDevelopmentTerm" />
+                <ScalarProperty Name="Group" ColumnName="Group" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer>
+    <edmx:Connection>
+      <edmx:DesignerInfoPropertySet>
+        <edmx:DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </edmx:DesignerInfoPropertySet>
+    </edmx:Connection>
+    <edmx:Options>
+      <edmx:DesignerInfoPropertySet>
+        <edmx:DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <edmx:DesignerProperty Name="EnablePluralization" Value="False" />
+        <edmx:DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+        <edmx:DesignerProperty Name="UseLegacyProvider" Value="True" />
+      </edmx:DesignerInfoPropertySet>
+    </edmx:Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <edmx:Diagram Name="FOXModel" ZoomLevel="71">
+        <edmx:EntityTypeShape EntityType="FOXModel.os_pro" Width="1.5" PointX="5.75" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.prod" Width="1.5" PointX="2.75" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.zayvka" Width="1.5" PointX="0.75" PointY="1.5" />
+        <edmx:EntityTypeShape EntityType="FOXModel.LIST_FR" Width="1.5" PointX="8.375" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.listdse" Width="1.5" PointX="8.375" PointY="3.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.oborud" Width="1.5" PointX="8.375" PointY="6.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.olistdse" Width="1.5" PointX="10.375" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.s_oper" Width="1.5" PointX="10.375" PointY="3.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.calend" Width="1.5" PointX="12.375" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="FOXModel.OrderApproval" Width="1.5" PointX="14.875" PointY="13" />
+        <edmx:EntityTypeShape EntityType="FOXModel.OrderApprovalDrafts" Width="1.5" PointX="17.125" PointY="13.25" />
+        <edmx:EntityTypeShape EntityType="FOXModel.OrderApprovalHistory" Width="1.5" PointX="17.125" PointY="16.875" />
+        <edmx:EntityTypeShape EntityType="FOXModel.OrderApprovalNomenclatureGroups" Width="1.5" PointX="12.625" PointY="20.375" />
+        <edmx:EntityTypeShape EntityType="FOXModel.OrderApprovalTypes" Width="1.5" PointX="10.375" PointY="11.5" />
+        <edmx:AssociationConnector Association="FOXModel.FK_OrderApproval_EquipmentTypeID" />
+        <edmx:AssociationConnector Association="FOXModel.FK_OrderApproval_NomenclatureGroupID" />
+        <edmx:AssociationConnector Association="FOXModel.FK_OrderApprovalDrafts_OrderApprovalID" />
+        <edmx:AssociationConnector Association="FOXModel.FK_OrderApprovalHistory_OrderApprovalID" />
+        <edmx:AssociationConnector Association="FOXModel.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" />
+        </edmx:Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

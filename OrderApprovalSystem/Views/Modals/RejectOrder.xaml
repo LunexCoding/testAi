@@ -1,0 +1,79 @@
+﻿<UserControl 
+    x:Class="OrderApprovalSystem.Views.Modals.RejectOrder"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:core="clr-namespace:OrderApprovalSystem.Core.Roles"
+    xmlns:converters="clr-namespace:OrderApprovalSystem.Converters">
+
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <!-- Проверка для OrderManager -->
+        <ObjectDataProvider x:Key="IsOrderManager" 
+                        ObjectType="{x:Type core:RoleManager}" 
+                        MethodName="IsInRole">
+            <ObjectDataProvider.MethodParameters>
+                <core:UserRole>OrderManager</core:UserRole>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <!-- Проверка для HeadOrderDepartment -->
+        <ObjectDataProvider x:Key="IsHeadOrderDepartment" 
+                        ObjectType="{x:Type core:RoleManager}" 
+                        MethodName="IsInRole">
+            <ObjectDataProvider.MethodParameters>
+                <core:UserRole>HeadOrderDepartment</core:UserRole>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0">
+            <TextBlock Text="Действие:" />
+            <TextBox Text="Возврат" IsReadOnly="True"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Margin="0,10,0,0">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Source={StaticResource IsOrderManager}}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Source={StaticResource IsHeadOrderDepartment}}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+
+            <TextBlock Text="Подразделение:" />
+            <ComboBox SelectedItem="{Binding Subdivision, UpdateSourceTrigger=PropertyChanged}" 
+              ItemsSource="{Binding Subdivisions}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+            <TextBlock Text="Получатель:" />
+            <ComboBox SelectedItem="{Binding SubdivisionRecipient, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding SubdivisionRecipients}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Margin="0,10,0,0">
+            <TextBlock Text="Комментарий:" />
+            <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                TextWrapping="Wrap"
+                AcceptsReturn="True" 
+                VerticalScrollBarVisibility="Auto"
+                HorizontalScrollBarVisibility="Disabled"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

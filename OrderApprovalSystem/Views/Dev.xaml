@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="OrderApprovalSystem.Views.Dev"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:OrderApprovalSystem.Views"
+        Background="{DynamicResource PrimaryBackgroundBrush}"
+        Foreground="{DynamicResource TextBrush}">
+
+    <!-- Контент разработчика -->
+    <Border Background="{DynamicResource PrimaryBackgroundBrush}">
+        <TextBlock Text="Dev Content" 
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center" 
+                   Foreground="{DynamicResource SecondaryTextBrush}" 
+                   FontSize="24"/>
+    </Border>
+</UserControl>

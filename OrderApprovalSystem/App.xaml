@@ -1,0 +1,33 @@
+﻿<Application xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:view="clr-namespace:OrderApprovalSystem.Views.Modals"
+             xmlns:vm="clr-namespace:OrderApprovalSystem.ViewModels.Modals"
+             xmlns:rejectModals="clr-namespace:OrderApprovalSystem.ViewModels.Modals.Reject"
+             x:Class="OrderApprovalSystem.App"
+             Startup="App_OnStartup">
+    <!-- Ресурсы приложения -->
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <DataTemplate DataType="{x:Type vm:vmApproveTechnologist}">
+                <view:ApproveTechnologist />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:RejectOrderManagerModal}">
+                <view:RejectOrder />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type rejectModals:RejectTechnologistModal}">
+                <view:RejectOrder />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:vmApproveHeadOrderDepartment}">
+                <view:ApproveHeadOrderDepartment />
+            </DataTemplate>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="EmbedResources/Themes/Default.xaml" />
+                <ResourceDictionary Source="EmbedResources/Themes/Dark.xaml" />
+                <ResourceDictionary Source="EmbedResources/UniversalResources.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ModalWindows;component/Themes/ModalStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
