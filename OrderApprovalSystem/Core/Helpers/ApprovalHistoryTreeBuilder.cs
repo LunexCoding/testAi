@@ -59,17 +59,12 @@ namespace OrderApprovalSystem.Core.Helpers
                         var currentParent = parentStack.Peek();
                         
                         // Check if parent already has a child with the same SenderName
-                        // If found, reuse that child instead of creating a duplicate node
+                        // If found, skip creating a duplicate node to avoid patterns like: Сладков → Сладков → Сладков
                         var existingChild = FindChildBySenderName(currentParent, record.SenderName);
                         
-                        if (existingChild != null)
+                        if (existingChild == null)
                         {
-                            // Reuse existing child node - push it onto stack for potential further nesting
-                            parentStack.Push(existingChild);
-                        }
-                        else
-                        {
-                            // Create new child node
+                            // No child with this SenderName exists - create a new node
                             var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
                             {
                                 Parent = currentParent
@@ -82,6 +77,7 @@ namespace OrderApprovalSystem.Core.Helpers
                             // Push this child onto the stack so subsequent rework items can nest under it
                             parentStack.Push(childNode);
                         }
+                        // else: duplicate sender detected - skip creating node to eliminate duplicate consecutive nodes
                     }
                     else
                     {
@@ -111,10 +107,11 @@ namespace OrderApprovalSystem.Core.Helpers
         /// <summary>
         /// Finds an existing child node in the parent's children with matching SenderName.
         /// Used for deduplication when processing rework items - if a child with the same sender already exists,
-        /// we reuse it instead of creating a duplicate node.
+        /// we skip creating a new node to avoid duplicate consecutive nodes in the tree.
+        /// Note: This means some records may not appear in the tree if they are duplicates.
         /// </summary>
         /// <param name="parent">Parent node to search children within</param>
-        /// <param name="senderName">SenderName to match (case-sensitive comparison)</param>
+        /// <param name="senderName">SenderName to match (case-insensitive comparison)</param>
         /// <returns>Existing child node with matching SenderName, or null if not found</returns>
         private static ApprovalHistoryNode FindChildBySenderName(ApprovalHistoryNode parent, string senderName)
         {
@@ -130,12 +127,12 @@ namespace OrderApprovalSystem.Core.Helpers
             }
 
             // Search for existing child with matching SenderName
-            // Using Ordinal comparison for consistent string matching
+            // Using OrdinalIgnoreCase for case-insensitive comparison since SenderName contains user names
             foreach (var child in parent.Children)
             {
                 if (child.Record != null && 
                     !string.IsNullOrEmpty(child.Record.SenderName) &&
-                    string.Equals(child.Record.SenderName, senderName, StringComparison.Ordinal))
+                    string.Equals(child.Record.SenderName, senderName, StringComparison.OrdinalIgnoreCase))
                 {
                     return child;
                 }
