@@ -59,7 +59,8 @@ namespace OrderApprovalSystem.Core.Helpers
                         var currentParent = parentStack.Peek();
                         
                         // Check if parent already has a child with the same SenderName
-                        // If found, skip creating a duplicate node to avoid patterns like: Сладков → Сладков → Сладков
+                        // If found, reuse that child node instead of creating a duplicate
+                        // This prevents patterns like: Сладков → Сладков → Сладков
                         var existingChild = FindChildBySenderName(currentParent, record.SenderName);
                         
                         if (existingChild == null)
@@ -77,7 +78,13 @@ namespace OrderApprovalSystem.Core.Helpers
                             // Push this child onto the stack so subsequent rework items can nest under it
                             parentStack.Push(childNode);
                         }
-                        // else: duplicate sender detected - skip creating node to eliminate duplicate consecutive nodes
+                        else
+                        {
+                            // Child with same SenderName already exists - reuse it for nesting
+                            // Push the existing child onto the stack so subsequent rework items nest under it
+                            // This maintains proper hierarchy while avoiding duplicate nodes
+                            parentStack.Push(existingChild);
+                        }
                     }
                     else
                     {
@@ -107,8 +114,7 @@ namespace OrderApprovalSystem.Core.Helpers
         /// <summary>
         /// Finds an existing child node in the parent's children with matching SenderName.
         /// Used for deduplication when processing rework items - if a child with the same sender already exists,
-        /// we skip creating a new node to avoid duplicate consecutive nodes in the tree.
-        /// Note: This means some records may not appear in the tree if they are duplicates.
+        /// we reuse that child node instead of creating a duplicate, maintaining proper nesting hierarchy.
         /// </summary>
         /// <param name="parent">Parent node to search children within</param>
         /// <param name="senderName">SenderName to match (case-insensitive comparison)</param>
@@ -128,17 +134,10 @@ namespace OrderApprovalSystem.Core.Helpers
 
             // Search for existing child with matching SenderName
             // Using OrdinalIgnoreCase for case-insensitive comparison since SenderName contains user names
-            foreach (var child in parent.Children)
-            {
-                if (child.Record != null && 
-                    !string.IsNullOrEmpty(child.Record.SenderName) &&
-                    string.Equals(child.Record.SenderName, senderName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return child;
-                }
-            }
-
-            return null;
+            return parent.Children.FirstOrDefault(child =>
+                child.Record != null &&
+                !string.IsNullOrEmpty(child.Record.SenderName) &&
+                string.Equals(child.Record.SenderName, senderName, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
