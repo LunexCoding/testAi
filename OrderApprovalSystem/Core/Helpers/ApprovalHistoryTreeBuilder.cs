@@ -22,8 +22,11 @@ namespace OrderApprovalSystem.Core.Helpers
         /// Business Logic:
         /// - Non-rework items start new root nodes and reset the nesting hierarchy
         /// - Rework items nest under the most recent item (either root or previous rework)
+        /// - Rework items with the same SenderName (Отправитель) are grouped/deduplicated:
+        ///   if a parent already has a child with matching SenderName, that child is reused instead of creating a duplicate
         /// - Sequential rework items nest progressively deeper (representing iterative rework cycles)
-        /// - Example: Approval → Rework1 → Rework2 → Rework3 (each rework is a child of the previous)
+        /// - Example without deduplication: Сладков → Сладков → Сладков (creates 3 nodes)
+        /// - Example with deduplication: Сладков (single node with multiple branches: Ивченко, Шуклина)
         /// 
         /// If your workflow requires rework items at the same level (siblings), additional logic
         /// would be needed to determine when to pop the stack based on business rules.
@@ -54,17 +57,31 @@ namespace OrderApprovalSystem.Core.Helpers
                     if (parentStack.Count > 0)
                     {
                         var currentParent = parentStack.Peek();
-                        var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
+                        
+                        // Check if parent already has a child with the same SenderName
+                        // If found, reuse that child instead of creating a duplicate node
+                        var existingChild = FindChildBySenderName(currentParent, record.SenderName);
+                        
+                        if (existingChild != null)
                         {
-                            Parent = currentParent
-                        };
-                        currentParent.Children.Add(childNode);
+                            // Reuse existing child node - push it onto stack for potential further nesting
+                            parentStack.Push(existingChild);
+                        }
+                        else
+                        {
+                            // Create new child node
+                            var childNode = new ApprovalHistoryNode(record, currentParent.Level + 1)
+                            {
+                                Parent = currentParent
+                            };
+                            currentParent.Children.Add(childNode);
 
-                        // Invalidate completion date cache since we added a child
-                        currentParent.InvalidateCompletionDateCache();
+                            // Invalidate completion date cache since we added a child
+                            currentParent.InvalidateCompletionDateCache();
 
-                        // Push this child onto the stack so subsequent rework items can nest under it
-                        parentStack.Push(childNode);
+                            // Push this child onto the stack so subsequent rework items can nest under it
+                            parentStack.Push(childNode);
+                        }
                     }
                     else
                     {
@@ -89,6 +106,42 @@ namespace OrderApprovalSystem.Core.Helpers
             }
 
             return rootNodes;
+        }
+
+        /// <summary>
+        /// Finds an existing child node in the parent's children with matching SenderName.
+        /// Used for deduplication when processing rework items - if a child with the same sender already exists,
+        /// we reuse it instead of creating a duplicate node.
+        /// </summary>
+        /// <param name="parent">Parent node to search children within</param>
+        /// <param name="senderName">SenderName to match (case-sensitive comparison)</param>
+        /// <returns>Existing child node with matching SenderName, or null if not found</returns>
+        private static ApprovalHistoryNode FindChildBySenderName(ApprovalHistoryNode parent, string senderName)
+        {
+            if (parent?.Children == null || parent.Children.Count == 0)
+            {
+                return null;
+            }
+
+            // Handle null/empty senderName - use string.IsNullOrEmpty for consistency
+            if (string.IsNullOrEmpty(senderName))
+            {
+                return null;
+            }
+
+            // Search for existing child with matching SenderName
+            // Using Ordinal comparison for consistent string matching
+            foreach (var child in parent.Children)
+            {
+                if (child.Record != null && 
+                    !string.IsNullOrEmpty(child.Record.SenderName) &&
+                    string.Equals(child.Record.SenderName, senderName, StringComparison.Ordinal))
+                {
+                    return child;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
