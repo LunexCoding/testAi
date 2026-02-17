@@ -18,6 +18,15 @@ namespace OrderApprovalSystem.Core.Helpers
         /// Records with IsRework=false/null are parent nodes.
         /// Records with IsRework=true are child nodes under the most recent parent at the appropriate level.
         /// Supports multi-level nesting: rework can be returned for further rework, creating deeper hierarchies.
+        /// 
+        /// Business Logic:
+        /// - Non-rework items start new root nodes and reset the nesting hierarchy
+        /// - Rework items nest under the most recent item (either root or previous rework)
+        /// - Sequential rework items nest progressively deeper (representing iterative rework cycles)
+        /// - Example: Approval → Rework1 → Rework2 → Rework3 (each rework is a child of the previous)
+        /// 
+        /// If your workflow requires rework items at the same level (siblings), additional logic
+        /// would be needed to determine when to pop the stack based on business rules.
         /// </summary>
         /// <param name="flatHistory">Flat collection of approval history records.
         /// Should be sorted by ReceiptDate ascending for correct parent-child relationships.</param>

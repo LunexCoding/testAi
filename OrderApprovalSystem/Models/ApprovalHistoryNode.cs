@@ -80,6 +80,9 @@ namespace OrderApprovalSystem.Models
         /// For parent nodes with children, returns the maximum completion date among all child records.
         /// For leaf nodes or nodes without children, returns the record's own completion date.
         /// The value is cached for performance and recomputed when children are modified.
+        /// 
+        /// Thread-safety: This property is designed for single-threaded access (WPF UI thread).
+        /// If multi-threaded access is required, external synchronization must be provided.
         /// </summary>
         public DateTime? EffectiveCompletionDate
         {
