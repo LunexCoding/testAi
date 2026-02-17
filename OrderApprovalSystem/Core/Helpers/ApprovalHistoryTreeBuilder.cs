@@ -56,12 +56,18 @@ namespace OrderApprovalSystem.Core.Helpers
                     {
                         var currentParent = parentStack.Peek();
                         
-                        // Check if a child node with the same RecipientName already exists
+                        // Check if a child node with the same RecipientName already exists under current parent.
+                        // This prevents creating duplicate child nodes when the same person appears multiple times
+                        // in the approval flow. The current record acts as a "routing" record that navigates to
+                        // the existing node rather than creating a new duplicate node.
                         var existingChild = FindChildByRecipientName(currentParent, record.RecipientName);
                         
                         if (existingChild != null)
                         {
-                            // Reuse the existing node instead of creating a duplicate
+                            // Reuse the existing node instead of creating a duplicate.
+                            // Note: The current record's data is not stored separately - it serves only to
+                            // direct the flow to nest subsequent records under the existing node.
+                            // This design treats consecutive appearances of the same person as a single logical node.
                             parentStack.Push(existingChild);
                         }
                         else
@@ -111,7 +117,8 @@ namespace OrderApprovalSystem.Core.Helpers
         /// </summary>
         /// <param name="parent">Parent node to search within</param>
         /// <param name="recipientName">RecipientName to match</param>
-        /// <returns>Existing child node with matching RecipientName, or null if not found</returns>
+        /// <returns>Existing child node with matching RecipientName, or null if not found.
+        /// If multiple children have the same RecipientName (data inconsistency), returns the first one.</returns>
         private static ApprovalHistoryNode FindChildByRecipientName(ApprovalHistoryNode parent, string recipientName)
         {
             if (parent?.Children == null || string.IsNullOrEmpty(recipientName))
@@ -119,6 +126,10 @@ namespace OrderApprovalSystem.Core.Helpers
                 return null;
             }
 
+            // Using FirstOrDefault is appropriate because:
+            // 1. Under normal circumstances, a parent should not have multiple children with identical RecipientNames
+            // 2. If such duplicates exist (data inconsistency), reusing the first occurrence is reasonable
+            // 3. This fix prevents creating additional duplicates going forward
             return parent.Children.FirstOrDefault(child => 
                 child.Record?.RecipientName != null && 
                 child.Record.RecipientName.Equals(recipientName, StringComparison.Ordinal));
