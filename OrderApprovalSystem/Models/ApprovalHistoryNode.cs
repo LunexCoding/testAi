@@ -15,6 +15,8 @@ namespace OrderApprovalSystem.Models
     {
         private bool _isExpanded;
         private bool _isSelected;
+        private DateTime? _cachedEffectiveCompletionDate;
+        private bool _isCacheValid;
 
         /// <summary>
         /// The underlying approval history record
@@ -77,18 +79,40 @@ namespace OrderApprovalSystem.Models
         /// Gets the effective completion date for this node.
         /// For parent nodes with children, returns the maximum completion date among all child records.
         /// For leaf nodes or nodes without children, returns the record's own completion date.
+        /// The value is cached for performance and recomputed when children are modified.
         /// </summary>
         public DateTime? EffectiveCompletionDate
         {
             get
             {
-                if (HasChildren)
+                if (!_isCacheValid)
                 {
-                    // Find the maximum completion date among all children recursively
-                    return GetMaxCompletionDateRecursive(this);
+                    if (HasChildren)
+                    {
+                        // Find the maximum completion date among all children recursively
+                        _cachedEffectiveCompletionDate = GetMaxCompletionDateRecursive(this);
+                    }
+                    else
+                    {
+                        _cachedEffectiveCompletionDate = Record?.CompletionDate;
+                    }
+                    _isCacheValid = true;
                 }
-                return Record?.CompletionDate;
+                return _cachedEffectiveCompletionDate;
             }
+        }
+
+        /// <summary>
+        /// Invalidates the cached effective completion date for this node and all its ancestors.
+        /// Should be called when children are added or modified.
+        /// </summary>
+        public void InvalidateCompletionDateCache()
+        {
+            _isCacheValid = false;
+            OnPropertyChanged(nameof(EffectiveCompletionDate));
+            
+            // Propagate invalidation up the tree
+            Parent?.InvalidateCompletionDateCache();
         }
 
         /// <summary>

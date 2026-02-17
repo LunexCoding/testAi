@@ -51,6 +51,9 @@ namespace OrderApprovalSystem.Core.Helpers
                         };
                         currentParent.Children.Add(childNode);
                         
+                        // Invalidate completion date cache since we added a child
+                        currentParent.InvalidateCompletionDateCache();
+                        
                         // Push this child onto the stack so subsequent rework items can nest under it
                         parentStack.Push(childNode);
                     }
