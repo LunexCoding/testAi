@@ -53,9 +53,19 @@ namespace OrderApprovalSystem.Models
                 // ОПРЕДЕЛЯЕМ СЛЕДУЮЩЕГО ПОЛУЧАТЕЛЯ С УЧЕТОМ ПРИЗНАКА ДОРАБОТКИ
                 (string nextRole, string nextName) = GetNextRecipientWithReworkCheck();
 
-                // Определяем ParentID: если текущий шаг - доработка, новый шаг становится его дочерним
-                // Иначе новый шаг остаётся на том же уровне (ParentID = текущий ParentID)
-                int? nextParentID = thisStepRecord.IsRework ? thisStepRecord.ID : thisStepRecord.ParentID;
+                // Определяем ParentID для нового шага
+                int? nextParentID;
+                if (thisStepRecord.IsRework)
+                {
+                    // Если текущий шаг - доработка (IsRework=true), то при возврате:
+                    // новый шаг должен быть дочерним элементом записи, которая создала доработку (ParentID текущей записи)
+                    nextParentID = thisStepRecord.ParentID;
+                }
+                else
+                {
+                    // Обычное согласование - остаёмся на том же уровне
+                    nextParentID = thisStepRecord.ParentID;
+                }
 
                 OrderApprovalHistory nextStepRecord = new OrderApprovalHistory
                 {
@@ -77,6 +87,14 @@ namespace OrderApprovalSystem.Models
                 if (status.IsFailed)
                 {
                     return Result.Failed("Не удалось сохранить запись нового согласования в БД!");
+                }
+
+                // Если текущий шаг был доработкой, обновляем его ParentID, чтобы он стал дочерним элементом нового шага
+                if (thisStepRecord.IsRework)
+                {
+                    db.mSaveChanges(); // Сохраняем, чтобы получить ID нового шага
+                    thisStepRecord.ParentID = nextStepRecord.ID;
+                    db.mUpdate(thisStepRecord);
                 }
 
                 LoggerManager.MainLogger.Info($"Заказ согласован, передан {nextRole} - {nextName}");
