@@ -49,6 +49,7 @@ namespace OrderApprovalSystem.Models
                 OrderApprovalHistory nextStep = new OrderApprovalHistory
                 {
                     OrderApprovalID = CurrentItem.OrderApprovalID,
+                    ParentID = thisStep.ID,  // Связываем с текущей записью
                     ReceiptDate = DateTime.Now,
                     CompletionDate = null,
                     Term = deadlineDate,
