@@ -61,6 +61,11 @@ namespace OrderApprovalSystem.Models
                     // Ищем запись, которая первой отклонила и отправила на доработку к получателю nextName
                     // Это будет родительская запись для нового шага
                     nextParentID = FindOriginalRejectingRecord(thisStepRecord, nextName);
+                    // Если не нашли отклоняющую запись, используем ParentID текущей записи (остаёмся на том же уровне)
+                    if (!nextParentID.HasValue)
+                    {
+                        nextParentID = thisStepRecord.ParentID;
+                    }
                 }
                 else
                 {
