@@ -128,13 +128,29 @@ namespace OrderApprovalSystem.Models
                         var parentResult = db.mGetSingle<OrderApprovalHistory>(h => h.ID == thisStepRecord.ParentID.Value);
                         if (parentResult.IsSuccess && parentResult.Data != null && parentResult.Data.IsRework)
                         {
-                            parentResult.Data.ParentID = nextStepRecord.ID;
-                            status = db.mUpdate(parentResult.Data);
-                            if (status.IsFailed)
+                            // Проверяем, не создаст ли это циклическую ссылку
+                            // Если новый шаг уже является дочерним родителя (nextParentID == parent.ID), не переносим
+                            if (nextParentID.HasValue && nextParentID.Value == parentResult.Data.ID)
                             {
-                                LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи доработки: {status.Message}");
+                                // Циклическая ссылка - оставляем родителя на месте, переносим текущую запись
+                                thisStepRecord.ParentID = nextStepRecord.ID;
+                                status = db.mUpdate(thisStepRecord);
+                                if (status.IsFailed)
+                                {
+                                    LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для записи доработки: {status.Message}");
+                                }
                             }
-                            // Текущая запись остаётся дочерней элементом родителя
+                            else
+                            {
+                                // Безопасно переносим родителя
+                                parentResult.Data.ParentID = nextStepRecord.ID;
+                                status = db.mUpdate(parentResult.Data);
+                                if (status.IsFailed)
+                                {
+                                    LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи доработки: {status.Message}");
+                                }
+                                // Текущая запись остаётся дочерней элементом родителя
+                            }
                         }
                         else
                         {
