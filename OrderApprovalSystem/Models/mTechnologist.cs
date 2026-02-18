@@ -53,7 +53,7 @@ namespace OrderApprovalSystem.Models
                 // ОПРЕДЕЛЯЕМ СЛЕДУЮЩЕГО ПОЛУЧАТЕЛЯ С УЧЕТОМ ПРИЗНАКА ДОРАБОТКИ
                 (string nextRole, string nextName) = GetNextRecipientWithReworkCheck();
 
-                // Определяем ParentID: если текущий шаг - доработка, новый шаг становится её дочерним
+                // Определяем ParentID: если текущий шаг - доработка, новый шаг становится его дочерним
                 // Иначе новый шаг остаётся на том же уровне (ParentID = текущий ParentID)
                 int? nextParentID = thisStepRecord.IsRework ? thisStepRecord.ID : thisStepRecord.ParentID;
 

@@ -283,7 +283,7 @@ namespace OrderApprovalSystem.Models
 
                 var (nextRole, nextName) = GetNextRecipientForManager();
 
-                // Определяем ParentID: если текущий шаг - доработка, новый шаг становится её дочерним
+                // Определяем ParentID: если текущий шаг - доработка, новый шаг становится его дочерним
                 // Иначе новый шаг остаётся на том же уровне (ParentID = текущий ParentID)
                 int? nextParentID = thisStep.IsRework ? thisStep.ID : thisStep.ParentID;
 
