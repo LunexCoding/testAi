@@ -129,7 +129,7 @@ namespace OrderApprovalSystem.Models
                         if (parentResult.IsSuccess && parentResult.Data != null && parentResult.Data.IsRework)
                         {
                             // Проверяем, не создаст ли это циклическую ссылку
-                            // Если новый шаг уже является дочерним родителя (nextParentID == parent.ID), не переносим
+                            // Если новый шаг указывает на родителя как на свой ParentID, то перенос родителя создаст цикл
                             if (nextParentID.HasValue && nextParentID.Value == parentResult.Data.ID)
                             {
                                 // Циклическая ссылка - оставляем родителя на месте, переносим текущую запись
