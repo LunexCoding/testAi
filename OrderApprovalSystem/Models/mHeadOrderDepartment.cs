@@ -46,10 +46,14 @@ namespace OrderApprovalSystem.Models
                 // ОПРЕДЕЛЯЕМ СЛЕДУЮЩЕГО ПОЛУЧАТЕЛЯ С УЧЕТОМ ПРИЗНАКА ДОРАБОТКИ
                 (string nextRole, string nextName) = GetNextRecipientWithReworkCheck();
 
+                // Определяем ParentID: если текущий шаг - доработка, новый шаг становится её дочерним
+                // Иначе новый шаг остаётся на том же уровне (ParentID = текущий ParentID)
+                int? nextParentID = thisStep.IsRework ? thisStep.ID : thisStep.ParentID;
+
                 OrderApprovalHistory nextStep = new OrderApprovalHistory
                 {
                     OrderApprovalID = CurrentItem.OrderApprovalID,
-                    ParentID = thisStep.ID,  // Связываем с текущей записью
+                    ParentID = nextParentID,
                     ReceiptDate = DateTime.Now,
                     CompletionDate = null,
                     Term = deadlineDate,

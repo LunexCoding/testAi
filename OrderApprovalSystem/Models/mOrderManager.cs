@@ -283,11 +283,15 @@ namespace OrderApprovalSystem.Models
 
                 var (nextRole, nextName) = GetNextRecipientForManager();
 
+                // Определяем ParentID: если текущий шаг - доработка, новый шаг становится её дочерним
+                // Иначе новый шаг остаётся на том же уровне (ParentID = текущий ParentID)
+                int? nextParentID = thisStep.IsRework ? thisStep.ID : thisStep.ParentID;
+
                 // 4. Создаем следующий шаг согласования
                 OrderApprovalHistory nextStep = new OrderApprovalHistory
                 {
                     OrderApprovalID = thisRecord.ID,
-                    ParentID = thisStep.ID,  // Связываем с текущей записью
+                    ParentID = nextParentID,
                     ReceiptDate = DateTime.Now,
                     CompletionDate = null,
                     Term = deadlineDate,
