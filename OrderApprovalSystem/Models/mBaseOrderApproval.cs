@@ -860,7 +860,8 @@ namespace OrderApprovalSystem.Models
             }
             
             // Если нашли хотя бы одну отклоняющую запись, возвращаем её ID
-            // Иначе возвращаем ParentID текущей записи
+            // Иначе возвращаем ParentID текущей записи (сохраняем текущий уровень)
+            // или null, если текущая запись уже на корневом уровне
             return lastFoundRejectingRecordId ?? currentRecord.ParentID;
         }
 
