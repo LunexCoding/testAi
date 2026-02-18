@@ -116,10 +116,41 @@ namespace OrderApprovalSystem.Models
                     return Result.Failed("Не удалось сохранить запись нового согласования в БД!");
                 }
 
+                db.mSaveChanges(); // Сохраняем, чтобы получить ID нового шага
+
                 // Если текущий шаг был доработкой, обновляем его ParentID, чтобы он стал дочерним элементом нового шага
                 if (thisStepRecord.IsRework)
                 {
-                    db.mSaveChanges(); // Сохраняем, чтобы получить ID нового шага
+                    // Если у текущей записи есть родитель, и это тоже запись доработки (IsRework),
+                    // то родитель должен стать дочерним элементом нового шага (sub-cycle reparenting)
+                    if (thisStepRecord.ParentID.HasValue)
+                    {
+                        var parentRecord = db.mGetSingle<OrderApprovalHistory>(h => h.ID == thisStepRecord.ParentID.Value).Data;
+                        if (parentRecord != null && parentRecord.IsRework)
+                        {
+                            parentRecord.ParentID = nextStepRecord.ID;
+                            db.mUpdate(parentRecord);
+                            // Текущая запись остаётся дочерней элементом родителя
+                        }
+                        else
+                        {
+                            // Обычное reparenting: текущая запись становится дочерней нового шага
+                            thisStepRecord.ParentID = nextStepRecord.ID;
+                            db.mUpdate(thisStepRecord);
+                        }
+                    }
+                    else
+                    {
+                        // Нет родителя, обычное reparenting
+                        thisStepRecord.ParentID = nextStepRecord.ID;
+                        db.mUpdate(thisStepRecord);
+                    }
+                }
+                // Если текущий шаг НЕ был доработкой, но мы возвращаемся к отклонившему (nextParentID != текущий ParentID),
+                // то текущий шаг также должен стать дочерним элементом нового шага
+                else if (thisStepRecord.ParentID.HasValue && nextParentID.HasValue && 
+                         thisStepRecord.ParentID.Value != nextParentID.Value)
+                {
                     thisStepRecord.ParentID = nextStepRecord.ID;
                     db.mUpdate(thisStepRecord);
                 }
