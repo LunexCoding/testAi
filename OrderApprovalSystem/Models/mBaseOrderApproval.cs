@@ -805,18 +805,18 @@ namespace OrderApprovalSystem.Models
             return GetDefaultNextRecipient();
         }
 
-        /// <summary>
-        /// Создать запись об отклонении заказа (доработке)
-        /// </summary>
+        // Обновленный метод создания записи
         protected OrderApprovalHistory CreateRejectionRecord(
-            string recipientRole,
-            string recipientName,
-            string comment,
-            DateTime deadlineDate)
+    string recipientRole,
+    string recipientName,
+    string comment,
+    DateTime deadlineDate,
+    int? parentId) // Добавили параметр для связи
         {
             return new OrderApprovalHistory
             {
                 OrderApprovalID = CurrentItem.OrderApprovalID,
+                ParentID = parentId,
                 ReceiptDate = DateTime.Now,
                 CompletionDate = null,
                 Term = deadlineDate,
@@ -827,8 +827,19 @@ namespace OrderApprovalSystem.Models
                 Status = "В работе",
                 Result = null,
                 Comment = comment,
-                IsRework = true  // Устанавливаем признак доработки
+                IsRework = true
             };
+        }
+
+        // Поиск текущей активной записи для связи
+        protected OrderApprovalHistory GetCurrentActiveStep()
+        {
+            return db.mGetList<OrderApprovalHistory>(h =>
+                h.OrderApprovalID == CurrentItem.OrderApprovalID &&
+                h.RecipientName == RoleManager.CurrentUser.Name &&
+                h.CompletionDate == null).Data
+                .OrderByDescending(h => h.ReceiptDate)
+                .FirstOrDefault();
         }
 
         /// <summary>

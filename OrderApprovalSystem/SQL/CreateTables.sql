@@ -71,7 +71,8 @@ CREATE TABLE OrderApprovalDrafts (
 
 CREATE TABLE OrderApprovalHistory (
 	ID INT PRIMARY KEY IDENTITY(1, 1),
-	OrderApprovalID INT NOT NULL, 						-- OrderApproval.ID
+	OrderApprovalID INT NOT NULL,
+	ParentID INT NULL,					
 	ReceiptDate DATETIME2(0) NOT NULL, 					--
 	CompletionDate DATETIME2(0) NULL,					--
 	Term DATE NOT NULL, 								-- ReceiptDate.Day + (OrderApproval.ID -> OrderApproval.EquipmentTypeID -> OrderApprovalTypes.Term)
@@ -91,7 +92,10 @@ CREATE TABLE OrderApprovalHistory (
     CHECK (Result IN ('Согласовано', 'Не согласовано', 'Аннулировать', NULL)),
 
 	CONSTRAINT CHK_OrderApprovalHistory_Status 
-    CHECK (Status IN ('В работе', 'Выполнено'))
+    CHECK (Status IN ('В работе', 'Выполнено')),
+
+	CONSTRAINT FK_OrderApprovalHistory_Parent 
+	FOREIGN KEY (ParentID) REFERENCES OrderApprovalHistory(ID)
 )
 
 

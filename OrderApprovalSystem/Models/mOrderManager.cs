@@ -39,37 +39,24 @@ namespace OrderApprovalSystem.Models
 
         public override Result RejectOrder(Dictionary<string, object> data)
         {
-            LoggerManager.MainLogger.Debug("Call RejectOrder in mOrderManager");
-
             try
             {
-                // Проверка: нельзя отклонять заказы по служебной записке
-                if (CurrentItem.IsByMemo)
+                string comment = data.ContainsKey("Comment") ? data["Comment"].ToString() : "";
+
+                // Находим запись, которая сейчас "висит" на текущем пользователе
+                var currentActiveStep = db.mGetList<OrderApprovalHistory>(h =>
+                    h.OrderApprovalID == CurrentItem.OrderApprovalID &&
+                    h.RecipientName == RoleManager.CurrentUser.Name &&
+                    h.CompletionDate == null).Data
+                    .OrderByDescending(h => h.ReceiptDate)
+                    .FirstOrDefault();
+
+                if (currentActiveStep != null)
                 {
-                    return Result.Failed("Нельзя отклонить заказ по служебной записке!");
-                }
-
-                // 1. Получаем текущую запись согласования
-                OrderApprovalHistory currentStep = FindCurrentStepRecord();
-                if (currentStep == null)
-                {
-                    LoggerManager.MainLogger.Error("Не найдена текущая запись согласования");
-                    return Result.Failed("Не найдена текущая запись согласования");
-                }
-
-                string comment = data.ContainsKey("Comment") ? (string)data["Comment"] : null;
-
-                // 2. Помечаем текущий шаг как выполненный с результатом "На доработку"
-                currentStep.Status = "Выполнено";
-                currentStep.Result = "Не согласовано";
-                currentStep.CompletionDate = DateTime.Now;
-                currentStep.Comment = comment;
-
-                Result updateResult = db.mUpdate(currentStep);
-                if (updateResult.IsFailed)
-                {
-                    LoggerManager.MainLogger.Error($"Ошибка при обновлении записи: {updateResult.Message}");
-                    return Result.Failed("Не удалось обновить запись согласования");
+                    currentActiveStep.CompletionDate = DateTime.Now;
+                    currentActiveStep.Result = "Не согласовано";
+                    currentActiveStep.Status = "Выполнено";
+                    db.mUpdate(currentActiveStep);
                 }
 
                 // 3. Получаем данные из параметров
@@ -80,47 +67,30 @@ namespace OrderApprovalSystem.Models
                 // 4. Определяем ПОЛУЧАТЕЛЯ для возврата
                 (string recipientRole, string recipientName_resolved) = GetRecipientForRejection(recipientName);
 
-                // 5. Проверяем, нет ли уже активной доработки для этого получателя
-                var activeRework = GetActiveReworkRecord(recipientRole, recipientName_resolved);
-                if (activeRework != null)
-                {
-                    return Result.Failed($"Уже есть активная задача на доработку для {recipientRole} - {recipientName_resolved}");
-                }
-
                 // 6. Рассчитываем срок
                 int workingDaysCount = GetWorkingDaysCount(CurrentItem.OrderApprovalID);
                 if (workingDaysCount <= 0)
                 {
-                    workingDaysCount = SelectedTerm > 0 ? SelectedTerm : 10; // Значение по умолчанию
+                    workingDaysCount = SelectedTerm > 0 ? SelectedTerm : 1; // Значение по умолчанию
                     LoggerManager.MainLogger.Warn($"Не найден срок, используется значение по умолчанию: {workingDaysCount}");
                 }
 
                 DateTime deadlineDate = CalculateDeadlineDate(DateTime.Today, workingDaysCount);
 
-                // 7. СОЗДАЕМ НОВУЮ ЗАПИСЬ С ПРИЗНАКОМ ДОРАБОТКИ
+                // Создаем новую запись, указывая ID текущей как ParentID
                 OrderApprovalHistory nextStepRecord = CreateRejectionRecord(
                     recipientRole,
-                    recipientName_resolved,
+                    recipientName,
                     comment,
-                    deadlineDate);
+                    deadlineDate,
+                    currentActiveStep?.ID); // Вот здесь создается вложенность
 
-                Result addResult = db.mAdd(nextStepRecord);
-                if (addResult.IsFailed)
-                {
-                    LoggerManager.MainLogger.Error($"Ошибка при добавлении записи: {addResult.Message}");
-                    return Result.Failed("Не удалось создать новую запись согласования");
-                }
-
-                LoggerManager.MainLogger.Info(
-                    $"Заказ {CurrentItem.OrderNumber} отклонен менеджером. " +
-                    $"Отправлен на доработку: {recipientRole} - {recipientName_resolved}");
-
+                db.mAdd(nextStepRecord);
                 return Result.Success();
             }
             catch (Exception ex)
             {
-                LoggerManager.MainLogger.Error($"Ошибка в RejectOrder: {ex.Message}", ex);
-                return Result.Failed($"Произошла ошибка при отклонении заказа: {ex.Message}");
+                return Result.Failed(ex.Message);
             }
         }
 

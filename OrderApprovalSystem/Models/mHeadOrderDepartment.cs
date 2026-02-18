@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Fox.Core.Logging;
 using Fox.DatabaseService.Entities;
 using OrderApprovalSystem.Core.Roles;
@@ -78,75 +79,91 @@ namespace OrderApprovalSystem.Models
 
         public override Result RejectOrder(Dictionary<string, object> data)
         {
-            LoggerManager.MainLogger.Debug("Call RejectOrder");
-
             try
             {
-                OrderApprovalHistory previousStepRecord = FindLastStepRecord(
-                    RoleManager.DisplayRoleName,
-                    RoleManager.CurrentUser.Name);
+                string comment = data.ContainsKey("Comment") ? data["Comment"].ToString() : "";
 
-                if (previousStepRecord is null)
+                // Находим запись, которая сейчас "висит" на текущем пользователе
+                var currentActiveStep = db.mGetList<OrderApprovalHistory>(h =>
+                    h.OrderApprovalID == CurrentItem.OrderApprovalID &&
+                    h.RecipientName == RoleManager.CurrentUser.Name &&
+                    h.CompletionDate == null).Data
+                    .OrderByDescending(h => h.ReceiptDate)
+                    .FirstOrDefault();
+
+                if (currentActiveStep != null)
                 {
-                    LoggerManager.MainLogger.Error("Не найдена прошлая строка согласования");
-                    return Result.Failed("Не найдена предыдущая запись согласования");
+                    currentActiveStep.CompletionDate = DateTime.Now;
+                    currentActiveStep.Result = "Не согласовано";
+                    currentActiveStep.Status = "Выполнено";
+                    db.mUpdate(currentActiveStep);
                 }
 
-                previousStepRecord.Status = "Выполнено";
-                previousStepRecord.Result = "Не согласовано";
-                previousStepRecord.CompletionDate = DateTime.Now;
+                // 3. Получаем данные из параметров
+                string recipientName = data.ContainsKey("SubdivisionRecipient")
+                    ? (string)data["SubdivisionRecipient"]
+                    : null;
 
-                Result updateResult = db.mUpdate(previousStepRecord);
-                if (updateResult.IsFailed)
-                {
-                    LoggerManager.MainLogger.Error($"Ошибка при обновлении записи: {updateResult.Message}");
-                    return Result.Failed("Не удалось обновить запись согласования");
-                }
+                // 4. Определяем ПОЛУЧАТЕЛЯ для возврата
+                (string recipientRole, string recipientName_resolved) = GetRecipientForRejection(recipientName);
 
+                // 6. Рассчитываем срок
                 int workingDaysCount = GetWorkingDaysCount(CurrentItem.OrderApprovalID);
                 if (workingDaysCount <= 0)
                 {
-                    LoggerManager.MainLogger.Error($"Not found term for approvalType:");
-                    return Result.Failed("Не найден срок");
+                    workingDaysCount = SelectedTerm > 0 ? SelectedTerm : 1; // Значение по умолчанию
+                    LoggerManager.MainLogger.Warn($"Не найден срок, используется значение по умолчанию: {workingDaysCount}");
                 }
 
                 DateTime deadlineDate = CalculateDeadlineDate(DateTime.Today, workingDaysCount);
 
-                string recipientName = (string)data["SubdivisionRecipient"];
-                string recipientRole = FindUserRole(recipientName);
-                string comment = (string)data["Comment"];
-
-                // Проверяем, нет ли уже активной доработки
-                var activeRework = GetActiveReworkRecord(recipientRole, recipientName);
-                if (activeRework != null)
-                {
-                    return Result.Failed($"Уже есть активная задача на доработку для {recipientRole} - {recipientName}");
-                }
-
-                // СОЗДАЕМ ЗАПИСЬ С ПРИЗНАКОМ ДОРАБОТКИ
+                // Создаем новую запись, указывая ID текущей как ParentID
                 OrderApprovalHistory nextStepRecord = CreateRejectionRecord(
                     recipientRole,
                     recipientName,
                     comment,
-                    deadlineDate);
+                    deadlineDate,
+                    currentActiveStep?.ID); // Вот здесь создается вложенность
 
-                Result addResult = db.mAdd(nextStepRecord);
-                if (addResult.IsFailed)
-                {
-                    LoggerManager.MainLogger.Error($"Ошибка при добавлении записи: {addResult.Message}");
-                    return Result.Failed("Не удалось создать новую запись согласования");
-                }
-
-                LoggerManager.MainLogger.Info(
-                    $"Заказ отклонен и отправлен на доработку в {recipientRole} - {recipientName}");
-
+                db.mAdd(nextStepRecord);
                 return Result.Success();
             }
             catch (Exception ex)
             {
-                LoggerManager.MainLogger.Error($"Ошибка в RejectOrder: {ex.Message}", ex);
-                return Result.Failed($"Произошла ошибка при отклонении заказа: {ex.Message}");
+                return Result.Failed(ex.Message);
             }
+        }
+
+        private (string Role, string Name) GetRecipientForRejection(string selectedRecipientName)
+        {
+            // 1. Если пользователь явно выбрал конкретного получателя - используем его
+            if (!string.IsNullOrEmpty(selectedRecipientName))
+            {
+                string role = FindUserRole(selectedRecipientName);
+                if (!string.IsNullOrEmpty(role))
+                {
+                    LoggerManager.MainLogger.Debug($"Выбран конкретный получатель: {role} - {selectedRecipientName}");
+                    return (role, selectedRecipientName);
+                }
+            }
+
+            // 2. По умолчанию: возвращаем тому, от кого пришел заказ
+            var previousStep = db.mGetQuery<OrderApprovalHistory>()
+                .Where(h =>
+                    h.OrderApprovalID == CurrentItem.OrderApprovalID &&
+                    h.RecipientRole == RoleManager.DisplayRoleName &&
+                    h.RecipientName == RoleManager.CurrentUser.Name &&
+                    h.Result == null)
+                .OrderByDescending(h => h.ID)
+                .FirstOrDefault();
+
+            if (previousStep != null)
+            {
+                LoggerManager.MainLogger.Debug(
+                    $"Возврат отправителю: {previousStep.SenderRole} - {previousStep.SenderName}");
+                return (previousStep.SenderRole, previousStep.SenderName);
+            }
+            return GetDefaultNextRecipient();
         }
 
         protected override (string Role, string Name) GetDefaultNextRecipient()

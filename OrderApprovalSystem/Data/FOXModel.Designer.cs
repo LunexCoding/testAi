@@ -24,6 +24,7 @@ using System.Xml.Serialization;
 [assembly: EdmRelationshipAttribute("FOXModel", "FK_OrderApprovalDrafts_OrderApprovalID", "OrderApproval", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(OrderApprovalSystem.Data.OrderApproval), "OrderApprovalDrafts", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OrderApprovalSystem.Data.OrderApprovalDrafts), true)]
 [assembly: EdmRelationshipAttribute("FOXModel", "FK_OrderApprovalHistory_OrderApprovalID", "OrderApproval", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(OrderApprovalSystem.Data.OrderApproval), "OrderApprovalHistory", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OrderApprovalSystem.Data.OrderApprovalHistory), true)]
 [assembly: EdmRelationshipAttribute("FOXModel", "FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes", "OrderApprovalTypes", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(OrderApprovalSystem.Data.OrderApprovalTypes), "OrderApprovalNomenclatureGroups", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OrderApprovalSystem.Data.OrderApprovalNomenclatureGroups), true)]
+[assembly: EdmRelationshipAttribute("FOXModel", "FK_OrderApprovalHistory_Parent", "OrderApprovalHistory", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(OrderApprovalSystem.Data.OrderApprovalHistory), "OrderApprovalHistory1", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(OrderApprovalSystem.Data.OrderApprovalHistory), true)]
 
 #endregion
 
@@ -2664,6 +2665,30 @@ namespace OrderApprovalSystem.Data
         private global::System.String _Comment;
         partial void OnCommentChanging(global::System.String value);
         partial void OnCommentChanged();
+    
+        /// <summary>
+        /// Нет доступной документации по метаданным.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> ParentID
+        {
+            get
+            {
+                return _ParentID;
+            }
+            set
+            {
+                OnParentIDChanging(value);
+                ReportPropertyChanging("ParentID");
+                _ParentID = StructuralObject.SetValidValue(value, "ParentID");
+                ReportPropertyChanged("ParentID");
+                OnParentIDChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _ParentID;
+        partial void OnParentIDChanging(Nullable<global::System.Int32> value);
+        partial void OnParentIDChanged();
 
         #endregion
 
@@ -2703,6 +2728,66 @@ namespace OrderApprovalSystem.Data
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<OrderApproval>("FOXModel.FK_OrderApprovalHistory_OrderApprovalID", "OrderApproval", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// Нет доступной документации по метаданным.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("FOXModel", "FK_OrderApprovalHistory_Parent", "OrderApprovalHistory1")]
+        public EntityCollection<OrderApprovalHistory> OrderApprovalHistory1
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<OrderApprovalHistory>("FOXModel.FK_OrderApprovalHistory_Parent", "OrderApprovalHistory1");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<OrderApprovalHistory>("FOXModel.FK_OrderApprovalHistory_Parent", "OrderApprovalHistory1", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// Нет доступной документации по метаданным.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("FOXModel", "FK_OrderApprovalHistory_Parent", "OrderApprovalHistory")]
+        public OrderApprovalHistory OrderApprovalHistory2
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<OrderApprovalHistory>("FOXModel.FK_OrderApprovalHistory_Parent", "OrderApprovalHistory").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<OrderApprovalHistory>("FOXModel.FK_OrderApprovalHistory_Parent", "OrderApprovalHistory").Value = value;
+            }
+        }
+        /// <summary>
+        /// Нет доступной документации по метаданным.
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<OrderApprovalHistory> OrderApprovalHistory2Reference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<OrderApprovalHistory>("FOXModel.FK_OrderApprovalHistory_Parent", "OrderApprovalHistory");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<OrderApprovalHistory>("FOXModel.FK_OrderApprovalHistory_Parent", "OrderApprovalHistory", value);
                 }
             }
         }

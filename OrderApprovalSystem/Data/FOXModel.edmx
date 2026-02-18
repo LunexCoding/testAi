@@ -119,6 +119,7 @@
           <Property Name="Result" Type="varchar" MaxLength="20" />
           <Property Name="IsRework" Type="bit" />
           <Property Name="Comment" Type="varchar(max)" />
+          <Property Name="ParentID" Type="int" />
         </EntityType>
         <EntityType Name="OrderApprovalNomenclatureGroups">
           <Key>
@@ -343,6 +344,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_OrderApprovalHistory_Parent">
+          <End Role="OrderApprovalHistory" Type="Self.OrderApprovalHistory" Multiplicity="0..1" />
+          <End Role="OrderApprovalHistory1" Type="Self.OrderApprovalHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalHistory">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalHistory1">
+              <PropertyRef Name="ParentID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes">
           <End Role="OrderApprovalTypes" Type="Self.OrderApprovalTypes" Multiplicity="1" />
           <End Role="OrderApprovalNomenclatureGroups" Type="Self.OrderApprovalNomenclatureGroups" Multiplicity="*" />
@@ -385,6 +398,10 @@
           <AssociationSet Name="FK_OrderApprovalHistory_OrderApprovalID" Association="Self.FK_OrderApprovalHistory_OrderApprovalID">
             <End Role="OrderApproval" EntitySet="OrderApproval" />
             <End Role="OrderApprovalHistory" EntitySet="OrderApprovalHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalHistory_Parent" Association="Self.FK_OrderApprovalHistory_Parent">
+            <End Role="OrderApprovalHistory" EntitySet="OrderApprovalHistory" />
+            <End Role="OrderApprovalHistory1" EntitySet="OrderApprovalHistory" />
           </AssociationSet>
           <AssociationSet Name="FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" Association="Self.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes">
             <End Role="OrderApprovalTypes" EntitySet="OrderApprovalTypes" />
@@ -429,6 +446,10 @@
           <AssociationSet Name="FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" Association="FOXModel.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes">
             <End Role="OrderApprovalTypes" EntitySet="OrderApprovalTypes" />
             <End Role="OrderApprovalNomenclatureGroups" EntitySet="OrderApprovalNomenclatureGroups" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderApprovalHistory_Parent" Association="FOXModel.FK_OrderApprovalHistory_Parent">
+            <End Role="OrderApprovalHistory" EntitySet="OrderApprovalHistory" />
+            <End Role="OrderApprovalHistory1" EntitySet="OrderApprovalHistory" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="os_pro">
@@ -708,6 +729,9 @@
           <Property Name="IsRework" Type="Boolean" />
           <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="OrderApproval" Relationship="FOXModel.FK_OrderApprovalHistory_OrderApprovalID" FromRole="OrderApprovalHistory" ToRole="OrderApproval" />
+          <Property Name="ParentID" Type="Int32" />
+          <NavigationProperty Name="OrderApprovalHistory1" Relationship="FOXModel.FK_OrderApprovalHistory_Parent" FromRole="OrderApprovalHistory" ToRole="OrderApprovalHistory1" />
+          <NavigationProperty Name="OrderApprovalHistory2" Relationship="FOXModel.FK_OrderApprovalHistory_Parent" FromRole="OrderApprovalHistory1" ToRole="OrderApprovalHistory" />
         </EntityType>
         <EntityType Name="OrderApprovalNomenclatureGroups">
           <Key>
@@ -788,6 +812,18 @@
             </Principal>
             <Dependent Role="OrderApprovalNomenclatureGroups">
               <PropertyRef Name="TypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderApprovalHistory_Parent">
+          <End Type="FOXModel.OrderApprovalHistory" Role="OrderApprovalHistory" Multiplicity="0..1" />
+          <End Type="FOXModel.OrderApprovalHistory" Role="OrderApprovalHistory1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OrderApprovalHistory">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="OrderApprovalHistory1">
+              <PropertyRef Name="ParentID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1065,6 +1101,7 @@
           <EntitySetMapping Name="OrderApprovalHistory">
             <EntityTypeMapping TypeName="FOXModel.OrderApprovalHistory">
               <MappingFragment StoreEntitySet="OrderApprovalHistory">
+                <ScalarProperty Name="ParentID" ColumnName="ParentID" />
                 <ScalarProperty Name="Comment" ColumnName="Comment" />
                 <ScalarProperty Name="IsRework" ColumnName="IsRework" />
                 <ScalarProperty Name="Result" ColumnName="Result" />
@@ -1122,7 +1159,7 @@
     </edmx:Options>
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <edmx:Diagram Name="FOXModel" ZoomLevel="71">
+      <edmx:Diagram Name="FOXModel" ZoomLevel="35">
         <edmx:EntityTypeShape EntityType="FOXModel.os_pro" Width="1.5" PointX="5.75" PointY="0.75" />
         <edmx:EntityTypeShape EntityType="FOXModel.prod" Width="1.5" PointX="2.75" PointY="0.75" />
         <edmx:EntityTypeShape EntityType="FOXModel.zayvka" Width="1.5" PointX="0.75" PointY="1.5" />
@@ -1142,6 +1179,7 @@
         <edmx:AssociationConnector Association="FOXModel.FK_OrderApprovalDrafts_OrderApprovalID" />
         <edmx:AssociationConnector Association="FOXModel.FK_OrderApprovalHistory_OrderApprovalID" />
         <edmx:AssociationConnector Association="FOXModel.FK_OrderApprovalNomenclatureGroups_OrderApprovalTypes" />
+        <edmx:AssociationConnector Association="FOXModel.FK_OrderApprovalHistory_Parent" />
         </edmx:Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

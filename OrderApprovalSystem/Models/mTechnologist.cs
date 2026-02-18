@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Fox.Core.Logging;
 using Fox.DatabaseService.Entities;
 using OrderApprovalSystem.Core;
@@ -83,77 +84,92 @@ namespace OrderApprovalSystem.Models
             }
         }
 
+        private (string Role, string Name) GetRecipientForRejection(string selectedRecipientName)
+        {
+            // 1. Если пользователь явно выбрал конкретного получателя - используем его
+            if (!string.IsNullOrEmpty(selectedRecipientName))
+            {
+                string role = FindUserRole(selectedRecipientName);
+                if (!string.IsNullOrEmpty(role))
+                {
+                    LoggerManager.MainLogger.Debug($"Выбран конкретный получатель: {role} - {selectedRecipientName}");
+                    return (role, selectedRecipientName);
+                }
+            }
+
+            // 2. По умолчанию: возвращаем тому, от кого пришел заказ
+            var previousStep = db.mGetQuery<OrderApprovalHistory>()
+                .Where(h =>
+                    h.OrderApprovalID == CurrentItem.OrderApprovalID &&
+                    h.RecipientRole == RoleManager.DisplayRoleName &&
+                    h.RecipientName == RoleManager.CurrentUser.Name &&
+                    h.Result == null)
+                .OrderByDescending(h => h.ID)
+                .FirstOrDefault();
+
+            if (previousStep != null)
+            {
+                LoggerManager.MainLogger.Debug(
+                    $"Возврат отправителю: {previousStep.SenderRole} - {previousStep.SenderName}");
+                return (previousStep.SenderRole, previousStep.SenderName);
+            }
+            return GetDefaultNextRecipient();
+        }
+
         public override Result RejectOrder(Dictionary<string, object> data)
         {
-            LoggerManager.MainLogger.Debug("Call RejectOrder");
-
             try
             {
-                string recipientRole = (string)data["Subdivision"];
-                string recipientName = (string)data["SubdivisionRecipient"];
-                string comment = (string)data["Comment"];
+                string comment = data.ContainsKey("Comment") ? data["Comment"].ToString() : "";
 
-                // Проверяем, нет ли уже активной доработки для этого получателя
-                var activeRework = GetActiveReworkRecord(recipientRole, recipientName);
-                if (activeRework != null)
+                var currentActiveStep = db.mGetList<OrderApprovalHistory>(h =>
+                    h.OrderApprovalID == CurrentItem.OrderApprovalID &&
+                    h.RecipientName == RoleManager.CurrentUser.Name &&
+                    h.CompletionDate == null).Data
+                    .OrderByDescending(h => h.ReceiptDate)
+                    .FirstOrDefault();
+
+                if (currentActiveStep != null)
                 {
-                    return Result.Failed($"Уже есть активная задача на доработку для {recipientRole} - {recipientName}");
+                    currentActiveStep.CompletionDate = DateTime.Now;
+                    currentActiveStep.Result = "Не согласовано";
+                    currentActiveStep.Status = "Выполнено";
+                    db.mUpdate(currentActiveStep);
                 }
 
-                OrderApprovalHistory thisStep = FindLastStepRecord(RoleManager.DisplayRoleName, RoleManager.CurrentUser.Name);
+                // 3. Получаем данные из параметров
+                string recipientName = data.ContainsKey("SubdivisionRecipient")
+                    ? (string)data["SubdivisionRecipient"]
+                    : null;
 
-                if (thisStep is null)
-                {
-                    LoggerManager.MainLogger.Error("Не найдена прошлая строка согласования");
-                    return Result.Failed("Не найдена предыдущая запись согласования");
-                }
+                // 4. Определяем ПОЛУЧАТЕЛЯ для возврата
+                (string recipientRole, string recipientName_resolved) = GetRecipientForRejection(recipientName);
 
-                thisStep.Status = "Выполнено";
-                thisStep.Result = "Не согласовано";
-                thisStep.CompletionDate = DateTime.Now;
-                thisStep.Comment = comment;
-                // IsRework у текущей записи не меняем - она завершена
-
-                Result updateResult = db.mUpdate(thisStep);
-                if (updateResult.IsFailed)
-                {
-                    LoggerManager.MainLogger.Error($"Ошибка при обновлении записи: {updateResult.Message}");
-                    return Result.Failed("Не удалось обновить запись согласования");
-                }
-
+                // 6. Рассчитываем срок
                 int workingDaysCount = GetWorkingDaysCount(CurrentItem.OrderApprovalID);
                 if (workingDaysCount <= 0)
                 {
-                    LoggerManager.MainLogger.Error($"Not found term for approvalType:");
-                    return Result.Failed("Не найден срок");
+                    workingDaysCount = SelectedTerm > 0 ? SelectedTerm : 1; // Значение по умолчанию
+                    LoggerManager.MainLogger.Warn($"Не найден срок, используется значение по умолчанию: {workingDaysCount}");
                 }
 
                 DateTime deadlineDate = CalculateDeadlineDate(DateTime.Today, workingDaysCount);
 
-                // СОЗДАЕМ ЗАПИСЬ С ПРИЗНАКОМ ДОРАБОТКИ
+                // 2. Создаем новую запись для Сладкова, привязывая её к ID технолога
                 OrderApprovalHistory nextStepRecord = CreateRejectionRecord(
                     recipientRole,
                     recipientName,
                     comment,
-                    deadlineDate);
+                    deadlineDate,
+                    currentActiveStep?.ID); // Ключевое изменение: передаем ParentID
 
                 Result addResult = db.mAdd(nextStepRecord);
-                if (addResult.IsFailed)
-                {
-                    LoggerManager.MainLogger.Error($"Ошибка при добавлении записи: {addResult.Message}");
-                    return Result.Failed("Не удалось создать новую запись согласования");
-                }
 
-                LoggerManager.MainLogger.Info(
-                    $"Заказ отклонен и отправлен на доработку в {recipientRole} - {recipientName}. " +
-                    $"IsRework=true");
-
-                return Result.Success();
+                return addResult.IsSuccess ? Result.Success() : Result.Failed("Ошибка сохранения истории");
             }
             catch (Exception ex)
             {
-                LoggerManager.MainLogger.Error($"Ошибка в RejectOrder: {ex.Message}", ex);
-                return Result.Failed($"Произошла ошибка при отклонении заказа: {ex.Message}");
+                return Result.Failed($"Ошибка технолога: {ex.Message}");
             }
         }
 

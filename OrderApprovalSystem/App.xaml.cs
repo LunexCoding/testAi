@@ -43,7 +43,7 @@ namespace OrderApprovalSystem
 
                     // var userRoles = RoleParser.ParseRoles(CheckStartUp.RolesList);
                     // var userRoles = RoleParser.ParseRoles(new List<string> { "Dev" });
-                    User user = new User(CheckStartUp.UserFIO, new List<UserRole>() { UserRole.OrderManager });
+                    User user = new User(CheckStartUp.UserFIO, new List<UserRole>() { UserRole.Dev });
                     RoleManager.Login(user);
 
                     string name = typeof(Main).Name;
