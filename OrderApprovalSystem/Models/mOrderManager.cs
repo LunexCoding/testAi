@@ -356,11 +356,11 @@ namespace OrderApprovalSystem.Models
                     // то родитель должен стать дочерним элементом нового шага (sub-cycle reparenting)
                     if (thisStep.ParentID.HasValue)
                     {
-                        var parentRecord = db.mGetSingle<OrderApprovalHistory>(h => h.ID == thisStep.ParentID.Value).Data;
-                        if (parentRecord != null && parentRecord.IsRework)
+                        var parentResult = db.mGetSingle<OrderApprovalHistory>(h => h.ID == thisStep.ParentID.Value);
+                        if (parentResult.IsSuccess && parentResult.Data != null && parentResult.Data.IsRework)
                         {
-                            parentRecord.ParentID = nextStep.ID;
-                            updateResult = db.mUpdate(parentRecord);
+                            parentResult.Data.ParentID = nextStep.ID;
+                            updateResult = db.mUpdate(parentResult.Data);
                             if (updateResult.IsFailed)
                             {
                                 LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи доработки: {updateResult.Message}");

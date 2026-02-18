@@ -118,25 +118,37 @@ namespace OrderApprovalSystem.Models
                     // то родитель должен стать дочерним элементом нового шага (sub-cycle reparenting)
                     if (thisStep.ParentID.HasValue)
                     {
-                        var parentRecord = db.mGetSingle<OrderApprovalHistory>(h => h.ID == thisStep.ParentID.Value).Data;
-                        if (parentRecord != null && parentRecord.IsRework)
+                        var parentResult = db.mGetSingle<OrderApprovalHistory>(h => h.ID == thisStep.ParentID.Value);
+                        if (parentResult.IsSuccess && parentResult.Data != null && parentResult.Data.IsRework)
                         {
-                            parentRecord.ParentID = nextStep.ID;
-                            db.mUpdate(parentRecord);
+                            parentResult.Data.ParentID = nextStep.ID;
+                            status = db.mUpdate(parentResult.Data);
+                            if (status.IsFailed)
+                            {
+                                LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи доработки: {status.Message}");
+                            }
                             // Текущая запись остаётся дочерней элементом родителя
                         }
                         else
                         {
                             // Обычное reparenting: текущая запись становится дочерней нового шага
                             thisStep.ParentID = nextStep.ID;
-                            db.mUpdate(thisStep);
+                            status = db.mUpdate(thisStep);
+                            if (status.IsFailed)
+                            {
+                                LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для записи доработки: {status.Message}");
+                            }
                         }
                     }
                     else
                     {
                         // Нет родителя, обычное reparenting
                         thisStep.ParentID = nextStep.ID;
-                        db.mUpdate(thisStep);
+                        status = db.mUpdate(thisStep);
+                        if (status.IsFailed)
+                        {
+                            LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для записи доработки: {status.Message}");
+                        }
                     }
                 }
                 // Если текущий шаг НЕ был доработкой, но мы возвращаемся к отклонившему (nextParentID != текущий ParentID),
@@ -145,7 +157,11 @@ namespace OrderApprovalSystem.Models
                          thisStep.ParentID.Value != nextParentID.Value)
                 {
                     thisStep.ParentID = nextStep.ID;
-                    db.mUpdate(thisStep);
+                    status = db.mUpdate(thisStep);
+                    if (status.IsFailed)
+                    {
+                        LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для записи: {status.Message}");
+                    }
                 }
 
                 LoggerManager.MainLogger.Info($"Заказ согласован, передан {nextRole} - {nextName}");
