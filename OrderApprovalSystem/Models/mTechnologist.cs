@@ -58,13 +58,35 @@ namespace OrderApprovalSystem.Models
                 if (thisStepRecord.IsRework)
                 {
                     // Если текущий шаг - доработка (IsRework=true), то при возврате:
-                    // новый шаг должен быть дочерним элементом записи, которая создала доработку (ParentID текущей записи)
-                    nextParentID = thisStepRecord.ParentID;
+                    // Ищем запись, которая первой отклонила и отправила на доработку к получателю nextName
+                    // Это будет родительская запись для нового шага
+                    nextParentID = FindOriginalRejectingRecord(thisStepRecord, nextName);
                 }
                 else
                 {
-                    // Обычное согласование - остаёмся на том же уровне
-                    nextParentID = thisStepRecord.ParentID;
+                    // Обычное согласование
+                    // Проверяем, находимся ли мы в цикле доработки (есть ParentID)
+                    // И возвращаемся ли к тому, кто отклонил
+                    if (thisStepRecord.ParentID.HasValue)
+                    {
+                        // Ищем, есть ли выше в цепочке запись с RecipientName = nextName и Result = "Не согласовано"
+                        var rejectingRecord = FindOriginalRejectingRecord(thisStepRecord, nextName);
+                        if (rejectingRecord.HasValue)
+                        {
+                            // Возвращаемся к отклонившему - остаёмся в его цикле
+                            nextParentID = rejectingRecord;
+                        }
+                        else
+                        {
+                            // Не возвращаемся к отклонившему - выходим на корневой уровень
+                            nextParentID = null;
+                        }
+                    }
+                    else
+                    {
+                        // Уже на корневом уровне - остаёмся там
+                        nextParentID = null;
+                    }
                 }
 
                 OrderApprovalHistory nextStepRecord = new OrderApprovalHistory

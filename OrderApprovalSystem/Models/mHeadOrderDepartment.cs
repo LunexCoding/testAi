@@ -51,13 +51,35 @@ namespace OrderApprovalSystem.Models
                 if (thisStep.IsRework)
                 {
                     // Если текущий шаг - доработка (IsRework=true), то при возврате:
-                    // новый шаг должен быть дочерним элементом записи, которая создала доработку (ParentID текущей записи)
-                    nextParentID = thisStep.ParentID;
+                    // Ищем запись, которая первой отклонила и отправила на доработку к получателю nextName
+                    // Это будет родительская запись для нового шага
+                    nextParentID = FindOriginalRejectingRecord(thisStep, nextName);
                 }
                 else
                 {
-                    // Обычное согласование - остаёмся на том же уровне
-                    nextParentID = thisStep.ParentID;
+                    // Обычное согласование
+                    // Проверяем, находимся ли мы в цикле доработки (есть ParentID)
+                    // И возвращаемся ли к тому, кто отклонил
+                    if (thisStep.ParentID.HasValue)
+                    {
+                        // Ищем, есть ли выше в цепочке запись с RecipientName = nextName и Result = "Не согласовано"
+                        var rejectingRecord = FindOriginalRejectingRecord(thisStep, nextName);
+                        if (rejectingRecord.HasValue)
+                        {
+                            // Возвращаемся к отклонившему - остаёмся в его цикле
+                            nextParentID = rejectingRecord;
+                        }
+                        else
+                        {
+                            // Не возвращаемся к отклонившему - выходим на корневой уровень
+                            nextParentID = null;
+                        }
+                    }
+                    else
+                    {
+                        // Уже на корневом уровне - остаёмся там
+                        nextParentID = null;
+                    }
                 }
 
                 OrderApprovalHistory nextStep = new OrderApprovalHistory
