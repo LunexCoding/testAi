@@ -56,6 +56,7 @@ namespace OrderApprovalSystem.Models
                     currentActiveStep.CompletionDate = DateTime.Now;
                     currentActiveStep.Result = "Не согласовано";
                     currentActiveStep.Status = "Выполнено";
+                    currentActiveStep.Comment = comment;
                     db.mUpdate(currentActiveStep);
                 }
 
@@ -285,7 +286,7 @@ namespace OrderApprovalSystem.Models
 
                 // Определяем ParentID для нового шага
                 int? nextParentID;
-                if (thisStep.IsRework)
+                if ((bool)thisStep.IsRework)
                 {
                     // Если текущий шаг - доработка (IsRework=true), то при возврате:
                     // Ищем запись, которая первой отклонила и отправила на доработку к получателю nextName
@@ -350,14 +351,14 @@ namespace OrderApprovalSystem.Models
                 db.mSaveChanges();
 
                 // Если текущий шаг был доработкой, обновляем его ParentID, чтобы он стал дочерним элементом нового шага
-                if (thisStep.IsRework)
+                if ((bool)thisStep.IsRework)
                 {
                     // Если у текущей записи есть родитель, и это тоже запись доработки (IsRework),
                     // то родитель должен стать дочерним элементом нового шага (sub-cycle reparenting)
                     if (thisStep.ParentID.HasValue)
                     {
                         var parentResult = db.mGetSingle<OrderApprovalHistory>(h => h.ID == thisStep.ParentID.Value);
-                        if (parentResult.IsSuccess && parentResult.Data != null && parentResult.Data.IsRework)
+                        if (parentResult.Status && parentResult.Data != null && (bool)parentResult.Data.IsRework)
                         {
                             // Проверяем, не создаст ли это циклическую ссылку
                             // Если новый шаг указывает на родителя как на свой ParentID, то перенос родителя создаст цикл
