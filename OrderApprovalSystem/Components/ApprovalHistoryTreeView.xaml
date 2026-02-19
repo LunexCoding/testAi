@@ -146,13 +146,19 @@
                         <!-- Комментарий -->
                     </Grid.ColumnDefinitions>
 
-                    <!-- Исполнитель (ФИО) with indentation for child nodes -->
-                    <TextBlock Grid.Column="0" 
-                               Text="{Binding Record.RecipientName}"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                               ToolTip="{Binding Record.RecipientName}"
-                               Margin="{Binding Level, Converter={StaticResource LevelToIndentConverter}}"/>
+                    <!-- Исполнитель (ФИО) with tree connector lines -->
+                    <DockPanel Grid.Column="0" VerticalAlignment="Center" Margin="18,0,2,0">
+                        <TextBlock DockPanel.Dock="Left"
+                                   Text="{Binding TreeConnectorPrefix}"
+                                   FontFamily="Consolas"
+                                   Foreground="{DynamicResource TextBrush}"
+                                   Opacity="0.5"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Record.RecipientName}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding Record.RecipientName}"
+                                   VerticalAlignment="Center"/>
+                    </DockPanel>
 
                     <!-- Срок -->
                     <TextBlock Grid.Column="1" 

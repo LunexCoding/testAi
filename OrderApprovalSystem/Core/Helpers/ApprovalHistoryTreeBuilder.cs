@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using OrderApprovalSystem.Data;
 using OrderApprovalSystem.Models;
 
@@ -8,6 +9,11 @@ namespace OrderApprovalSystem.Core.Helpers
 {
     public static class ApprovalHistoryTreeBuilder
     {
+        private const string PipeIndent = "│   ";
+        private const string EmptyIndent = "    ";
+        private const string MiddleChildConnector = "├── ";
+        private const string LastChildConnector = "└── ";
+
         public static ObservableCollection<ApprovalHistoryNode> BuildTree(IEnumerable<OrderApprovalHistory> flatHistory)
         {
             if (flatHistory == null) return new ObservableCollection<ApprovalHistoryNode>();
@@ -42,6 +48,10 @@ namespace OrderApprovalSystem.Core.Helpers
             // т.к. reparenting может создать ситуацию когда дочерний узел
             // обрабатывается раньше родительского (по ReceiptDate)
             RecalculateLevels(rootNodes, 0);
+
+            // Вычисляем IsLastChild и строковый префикс коннекторов дерева (├──, └──, │)
+            SetIsLastChild(rootNodes);
+            ComputeTreeConnectorPrefixes(rootNodes);
 
             return rootNodes;
         }
@@ -83,6 +93,63 @@ namespace OrderApprovalSystem.Core.Helpers
                 {
                     RecalculateLevels(node.Children, level + 1);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Устанавливает IsLastChild для каждого узла в дереве.
+        /// </summary>
+        private static void SetIsLastChild(ObservableCollection<ApprovalHistoryNode> nodes)
+        {
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                nodes[i].IsLastChild = (i == nodes.Count - 1);
+                if (nodes[i].Children.Count > 0)
+                {
+                    SetIsLastChild(nodes[i].Children);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Вычисляет строковый префикс коннекторов дерева (├──, └──, │) для каждого узла.
+        /// </summary>
+        private static void ComputeTreeConnectorPrefixes(ObservableCollection<ApprovalHistoryNode> rootNodes)
+        {
+            foreach (var node in rootNodes)
+            {
+                ComputeTreeConnectorPrefixForNode(node);
+            }
+        }
+
+        private static void ComputeTreeConnectorPrefixForNode(ApprovalHistoryNode node)
+        {
+            var sb = new StringBuilder();
+
+            // Собираем предков от корня до родителя
+            var ancestors = new List<ApprovalHistoryNode>();
+            var current = node.Parent;
+            while (current != null)
+            {
+                ancestors.Add(current);
+                current = current.Parent;
+            }
+            ancestors.Reverse();
+
+            // Для каждого предка: │ если не последний, пробелы если последний
+            foreach (var ancestor in ancestors)
+            {
+                sb.Append(ancestor.IsLastChild ? EmptyIndent : PipeIndent);
+            }
+
+            // Для текущего узла: └── если последний, ├── если нет
+            sb.Append(node.IsLastChild ? LastChildConnector : MiddleChildConnector);
+
+            node.TreeConnectorPrefix = sb.ToString();
+
+            foreach (var child in node.Children)
+            {
+                ComputeTreeConnectorPrefixForNode(child);
             }
         }
     }
