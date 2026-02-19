@@ -26,16 +26,32 @@ namespace OrderApprovalSystem.Core.Helpers
                 if (record.ParentID.HasValue && nodeLookup.TryGetValue(record.ParentID.Value, out var parentNode))
                 {
                     currentNode.Parent = parentNode;
-                    currentNode.Level = parentNode.Level + 1;
                     parentNode.Children.Add(currentNode);
                 }
                 else
                 {
-                    currentNode.Level = 0;
                     rootNodes.Add(currentNode);
                 }
             }
+
+            // Пересчитываем Level после построения дерева,
+            // т.к. reparenting может создать ситуацию когда дочерний узел
+            // обрабатывается раньше родительского (по ReceiptDate)
+            RecalculateLevels(rootNodes, 0);
+
             return rootNodes;
+        }
+
+        private static void RecalculateLevels(IEnumerable<ApprovalHistoryNode> nodes, int level)
+        {
+            foreach (var node in nodes)
+            {
+                node.Level = level;
+                if (node.Children != null && node.Children.Count > 0)
+                {
+                    RecalculateLevels(node.Children, level + 1);
+                }
+            }
         }
     }
 }
