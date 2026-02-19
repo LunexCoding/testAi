@@ -133,12 +133,15 @@ namespace OrderApprovalSystem.Models
                                 {
                                     LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для нового шага: {status.Message}");
                                 }
-                                // 2. Родитель переносится под nextStep
-                                parentResult.Data.ParentID = nextStep.ID;
-                                status = db.mUpdate(parentResult.Data);
-                                if (status.IsFailed)
+                                else
                                 {
-                                    LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи: {status.Message}");
+                                    // 2. Родитель переносится под nextStep (только если шаг 1 успешен)
+                                    parentResult.Data.ParentID = nextStep.ID;
+                                    status = db.mUpdate(parentResult.Data);
+                                    if (status.IsFailed)
+                                    {
+                                        LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи: {status.Message}");
+                                    }
                                 }
                                 // 3. thisStep остаётся дочерним элементом родителя (ParentID не меняется)
                             }

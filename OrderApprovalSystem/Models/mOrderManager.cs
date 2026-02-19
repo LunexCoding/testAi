@@ -371,12 +371,15 @@ namespace OrderApprovalSystem.Models
                                 {
                                     LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для нового шага: {updateResult.Message}");
                                 }
-                                // 2. Родитель переносится под nextStep
-                                parentResult.Data.ParentID = nextStep.ID;
-                                updateResult = db.mUpdate(parentResult.Data);
-                                if (updateResult.IsFailed)
+                                else
                                 {
-                                    LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи: {updateResult.Message}");
+                                    // 2. Родитель переносится под nextStep (только если шаг 1 успешен)
+                                    parentResult.Data.ParentID = nextStep.ID;
+                                    updateResult = db.mUpdate(parentResult.Data);
+                                    if (updateResult.IsFailed)
+                                    {
+                                        LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи: {updateResult.Message}");
+                                    }
                                 }
                                 // 3. thisStep остаётся дочерним элементом родителя (ParentID не меняется)
                             }
