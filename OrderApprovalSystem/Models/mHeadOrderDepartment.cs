@@ -125,13 +125,22 @@ namespace OrderApprovalSystem.Models
                             // Если новый шаг указывает на родителя как на свой ParentID, то перенос родителя создаст цикл
                             if (nextParentID.HasValue && nextParentID.Value == parentResult.Data.ID)
                             {
-                                // Циклическая ссылка - оставляем родителя на месте, переносим текущую запись
-                                thisStep.ParentID = nextStep.ID;
-                                status = db.mUpdate(thisStep);
+                                // Циклическая ссылка: nextStep встаёт на место родителя, а родитель становится дочерним nextStep
+                                // 1. nextStep получает ParentID родителя (встаёт на его место в иерархии)
+                                nextStep.ParentID = parentResult.Data.ParentID;
+                                status = db.mUpdate(nextStep);
                                 if (status.IsFailed)
                                 {
-                                    LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для записи доработки: {status.Message}");
+                                    LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для нового шага: {status.Message}");
                                 }
+                                // 2. Родитель переносится под nextStep
+                                parentResult.Data.ParentID = nextStep.ID;
+                                status = db.mUpdate(parentResult.Data);
+                                if (status.IsFailed)
+                                {
+                                    LoggerManager.MainLogger.Warn($"Не удалось обновить ParentID для родительской записи: {status.Message}");
+                                }
+                                // 3. thisStep остаётся дочерним элементом родителя (ParentID не меняется)
                             }
                             else
                             {
