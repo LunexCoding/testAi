@@ -66,16 +66,6 @@ namespace OrderApprovalSystem.Models
         public int Level { get; set; }
 
         /// <summary>
-        /// Indicates if this node is the last child among its siblings
-        /// </summary>
-        public bool IsLastChild { get; set; }
-
-        /// <summary>
-        /// Tree connector prefix string using box-drawing characters (├──, └──, │)
-        /// </summary>
-        public string TreeConnectorPrefix { get; set; } = "";
-
-        /// <summary>
         /// Parent node reference for navigation
         /// </summary>
         public ApprovalHistoryNode Parent { get; set; }
