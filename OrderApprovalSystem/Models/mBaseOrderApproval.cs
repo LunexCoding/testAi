@@ -831,6 +831,40 @@ namespace OrderApprovalSystem.Models
             };
         }
 
+        // Поиск записи, которая первой отклонила и создала цикл доработки для указанного получателя
+        // Возвращает ID самой верхней (первой) записи с отклонением для указанного получателя
+        // Или null, если такой записи нет в цепочке
+        protected int? FindOriginalRejectingRecord(OrderApprovalHistory currentRecord, string targetRecipientName)
+        {
+            // Поднимаемся по цепочке ParentID, ищем ВСЕ записи с RecipientName = targetRecipientName и Result = "Не согласовано"
+            // Возвращаем самую верхнюю (первую в цепочке)
+            int? lastFoundRejectingRecordId = null;
+            var current = currentRecord;
+            
+            while (current != null && current.ParentID.HasValue)
+            {
+                var parent = db.mGetSingle<OrderApprovalHistory>(h => h.ID == current.ParentID.Value).Data;
+                
+                if (parent != null)
+                {
+                    if (parent.RecipientName == targetRecipientName && parent.Result == "Не согласовано")
+                    {
+                        // Нашли запись, которая отклонила - сохраняем её ID и продолжаем поиск выше
+                        lastFoundRejectingRecordId = parent.ID;
+                    }
+                    
+                    current = parent;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            
+            // Возвращаем ID найденной отклоняющей записи или null, если не нашли
+            return lastFoundRejectingRecordId;
+        }
+
         // Поиск текущей активной записи для связи
         protected OrderApprovalHistory GetCurrentActiveStep()
         {
