@@ -76,6 +76,23 @@ namespace OrderApprovalSystem.Models
         public bool HasChildren => Children != null && Children.Count > 0;
 
         /// <summary>
+        /// The effective result to display for this node.
+        /// Computed by ApprovalHistoryTreeBuilder after the tree is built:
+        /// - Rework nodes (IsRework=1 or collapsed from an IsRework=1 child): "Не согласовано"
+        /// - Non-rework nodes with rework children: "Не согласовано"
+        /// - Root-level nodes with rework children but a later root continuation: "Согласовано"
+        /// - Leaf nodes: own Record.Result
+        /// </summary>
+        public string EffectiveResult { get; set; }
+
+        /// <summary>
+        /// Internal flag set by ApprovalHistoryTreeBuilder when this node was collapsed
+        /// with a same-name child that had IsRework = true.
+        /// Used to derive EffectiveResult.
+        /// </summary>
+        internal bool EffectiveIsRework { get; set; }
+
+        /// <summary>
         /// Gets the effective completion date for this node.
         /// For parent nodes with children, returns the maximum completion date among all child records.
         /// For leaf nodes or nodes without children, returns the record's own completion date.

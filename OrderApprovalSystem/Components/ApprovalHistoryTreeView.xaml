@@ -171,10 +171,10 @@
 
                     <!-- Результат -->
                     <TextBlock Grid.Column="3" 
-                               Text="{Binding Record.Result}"
+                               Text="{Binding EffectiveResult}"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
-                               ToolTip="{Binding Record.Result}"
+                               ToolTip="{Binding EffectiveResult}"
                                Margin="10,0,5,0"/>
 
                     <!-- Дата поступления -->
