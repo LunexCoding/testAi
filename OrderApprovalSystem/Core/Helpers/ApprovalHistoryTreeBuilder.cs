@@ -44,10 +44,8 @@ namespace OrderApprovalSystem.Core.Helpers
             RecalculateLevels(rootNodes, 0);
 
             // Вычисляем эффективный результат для каждого узла:
-            // - Узлы с IsRework=1 (или поглотившие IsRework=1 при свёртке): "Не согласовано"
-            // - Не-корневые узлы с дочерними элементами: "Не согласовано"
             // - Корневые узлы с дочерними элементами, за которыми следует более поздний корневой узел: "Согласовано"
-            // - Листовые узлы: собственный Result из Record
+            // - Все остальные узлы: собственный Result из Record
             ComputeEffectiveResults(rootNodes);
 
             return rootNodes;
@@ -102,11 +100,10 @@ namespace OrderApprovalSystem.Core.Helpers
         /// <summary>
         /// Вычисляет и присваивает <see cref="ApprovalHistoryNode.EffectiveResult"/> каждому узлу дерева.
         ///
-        /// Правила (применяются в порядке приоритета):
-        /// 1. Узел поглотил IsRework=1 ребёнка при свёртке (EffectiveIsRework=true) → "Не согласовано"
-        /// 2. Корневой узел (Parent==null) с дочерними элементами и более поздним корневым узлом → "Согласовано"
-        /// 3. Не-корневой узел с дочерними элементами → "Не согласовано"
-        /// 4. Листовой узел → собственный Record.Result
+        /// Правило: корневой узел (Parent == null) с дочерними элементами, за которым следует
+        /// более поздний корневой узел, отображается как "Согласовано" — независимо от значения
+        /// Record.Result в базе данных.
+        /// Все остальные узлы используют своё собственное значение Record.Result.
         /// </summary>
         private static void ComputeEffectiveResults(ObservableCollection<ApprovalHistoryNode> rootNodes)
         {
@@ -119,26 +116,13 @@ namespace OrderApprovalSystem.Core.Helpers
         {
             foreach (var node in nodes)
             {
-                if (node.EffectiveIsRework)
+                if (node.Parent == null && node.HasChildren)
                 {
-                    node.EffectiveResult = "Не согласовано";
-                }
-                else if (node.HasChildren)
-                {
-                    if (node.Parent == null)
-                    {
-                        // Корневой узел: "Согласовано" если есть более поздний корневой узел,
-                        // иначе "Не согласовано" (доработка не завершена)
-                        bool hasLaterRoot = node.Record != null &&
-                                           rootNodes.Any(r => r.Record != null &&
-                                                              r.Record.ReceiptDate > node.Record.ReceiptDate);
-                        node.EffectiveResult = hasLaterRoot ? "Согласовано" : "Не согласовано";
-                    }
-                    else
-                    {
-                        // Не-корневой узел с дочерними элементами — итерация доработки
-                        node.EffectiveResult = "Не согласовано";
-                    }
+                    // Корневой узел с дочерними элементами: "Согласовано" если есть более поздний корневой узел
+                    bool hasLaterRoot = node.Record != null &&
+                                       rootNodes.Any(r => r.Record != null &&
+                                                          r.Record.ReceiptDate > node.Record.ReceiptDate);
+                    node.EffectiveResult = hasLaterRoot ? "Согласовано" : node.Record?.Result;
                 }
                 else
                 {

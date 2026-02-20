@@ -90,6 +90,21 @@ namespace OrderApprovalSystem.Models
 
             // Build hierarchical tree structure from flat history
             HistoryTree = ApprovalHistoryTreeBuilder.BuildTree(OrderHistory);
+
+            // Sync computed EffectiveResult values back to the DB for root nodes whose
+            // Result field is stale (e.g. a root node that was sent to rework but later
+            // re-approved should show "Согласовано" in the database too).
+            foreach (var rootNode in HistoryTree)
+            {
+                if (rootNode.Record != null &&
+                    rootNode.EffectiveResult != null &&
+                    rootNode.Record.Result != rootNode.EffectiveResult)
+                {
+                    rootNode.Record.Result = rootNode.EffectiveResult;
+                    db.mUpdate(rootNode.Record);
+                    // Note: display remains correct via EffectiveResult even if the DB update fails.
+                }
+            }
         }
 
         public string OrderInfo => $"Заказ: {Order.OrderNumber}";
