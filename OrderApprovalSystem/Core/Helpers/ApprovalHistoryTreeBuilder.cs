@@ -43,6 +43,11 @@ namespace OrderApprovalSystem.Core.Helpers
             // обрабатывается раньше родительского (по ReceiptDate)
             RecalculateLevels(rootNodes, 0);
 
+            // Вычисляем эффективный результат для каждого узла:
+            // - Корневые узлы с дочерними элементами, за которыми следует более поздний корневой узел: "Согласовано"
+            // - Все остальные узлы: собственный Result из Record
+            ComputeEffectiveResults(rootNodes);
+
             return rootNodes;
         }
 
@@ -50,6 +55,8 @@ namespace OrderApprovalSystem.Core.Helpers
         /// Убирает промежуточные узлы, у которых ровно 1 ребёнок с тем же RecipientName.
         /// Дети такого узла переносятся к его родителю.
         /// Например: Дингес → Дингес → Рагульский становится Дингес → Рагульский.
+        /// Если поглощаемый ребёнок имеет IsRework=true или сам помечен как EffectiveIsRework,
+        /// результирующему узлу выставляется EffectiveIsRework=true.
         /// </summary>
         private static void CollapseSameNameSingleChildNodes(ObservableCollection<ApprovalHistoryNode> nodes)
         {
@@ -59,6 +66,10 @@ namespace OrderApprovalSystem.Core.Helpers
                        node.Record?.RecipientName == node.Children[0].Record?.RecipientName)
                 {
                     var singleChild = node.Children[0];
+
+                    if (singleChild.Record?.IsRework == true || singleChild.EffectiveIsRework)
+                        node.EffectiveIsRework = true;
+
                     node.Children.Clear();
                     foreach (var grandchild in singleChild.Children)
                     {
@@ -82,6 +93,45 @@ namespace OrderApprovalSystem.Core.Helpers
                 if (node.Children != null && node.Children.Count > 0)
                 {
                     RecalculateLevels(node.Children, level + 1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Вычисляет и присваивает <see cref="ApprovalHistoryNode.EffectiveResult"/> каждому узлу дерева.
+        ///
+        /// Правило: корневой узел (Parent == null) с дочерними элементами, за которым следует
+        /// более поздний корневой узел, отображается как "Согласовано" — независимо от значения
+        /// Record.Result в базе данных.
+        /// Все остальные узлы используют своё собственное значение Record.Result.
+        /// </summary>
+        private static void ComputeEffectiveResults(ObservableCollection<ApprovalHistoryNode> rootNodes)
+        {
+            ComputeEffectiveResultsRecursive(rootNodes, rootNodes);
+        }
+
+        private static void ComputeEffectiveResultsRecursive(
+            IEnumerable<ApprovalHistoryNode> nodes,
+            ObservableCollection<ApprovalHistoryNode> rootNodes)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.Parent == null && node.HasChildren)
+                {
+                    // Корневой узел с дочерними элементами: "Согласовано" если есть более поздний корневой узел
+                    bool hasLaterRoot = node.Record != null &&
+                                       rootNodes.Any(r => r.Record != null &&
+                                                          r.Record.ReceiptDate > node.Record.ReceiptDate);
+                    node.EffectiveResult = hasLaterRoot ? "Согласовано" : node.Record?.Result;
+                }
+                else
+                {
+                    node.EffectiveResult = node.Record?.Result;
+                }
+
+                if (node.HasChildren)
+                {
+                    ComputeEffectiveResultsRecursive(node.Children, rootNodes);
                 }
             }
         }
