@@ -100,9 +100,12 @@ namespace OrderApprovalSystem.Models
                     rootNode.EffectiveResult != null &&
                     rootNode.Record.Result != rootNode.EffectiveResult)
                 {
-                    rootNode.Record.Result = rootNode.EffectiveResult;
-                    db.mUpdate(rootNode.Record);
-                    // Note: display remains correct via EffectiveResult even if the DB update fails.
+                    var recordResult = db.mGetSingle<OrderApprovalHistory>(r => r.ID == rootNode.Record.ID);
+                    if (recordResult.Status && recordResult.Data != null)
+                    {
+                        recordResult.Data.Result = rootNode.EffectiveResult;
+                        db.mUpdate(recordResult.Data);
+                    }
                 }
             }
         }
